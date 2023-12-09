@@ -26,3 +26,5 @@ export const createUserToken = (values: Record<string, any>) =>
 export const getUserTokenByUserId = (userId: string) => UserTokenModel.findOne({ userId })
 
 export const getUserTokenByToken = (token: string) => UserTokenModel.findOne({ token })
+
+export const deleteUserTokenByUserId = (userId: string) => UserTokenModel.findOneAndDelete({ userId })

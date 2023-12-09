@@ -1,29 +1,38 @@
 import mongoose from 'mongoose'
 
-const UserSchema = new mongoose.Schema({
-  username: { type: String, require: true },
-  email: { type: String, require: true },
-  roles: {
-    type: [String],
-    enum: ['user', 'admin', 'super_admin'],
-    default: ['user']
+const UserSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true },
+    email: { type: String, required: true },
+    roles: {
+      type: [String],
+      enum: ['user', 'admin', 'super_admin'],
+      default: ['user']
+    },
+    password: { type: String, required: true, select: false },
+    status: {
+      type: String,
+      enum: ['active', 'block'],
+      default: 'active',
+      select: false
+    }
   },
-  password: { type: String, require: true, select: false }
-})
+  { toObject: { useProjection: true } }
+)
 
 export const UserModel = mongoose.model('User', UserSchema)
 
-export const getUserByEmail = (email: string) => UserModel.findOne({ email })
+export const getUserByEmail = (email: string) => UserModel.findOne({ email, status: 'active' })
 
-export const getUserBySessionToken = (sessionToken: string) =>
-  UserModel.findOne({ 'authentication.sessionToken': sessionToken })
+export const getUserById = (id: string) => UserModel.findOne({ _id: id, status: 'active' })
 
-export const getUserById = (id: string) => UserModel.findById({ _id: id })
+export const createUser = (values: Record<string, any>) =>
+  new UserModel({ ...values, status: 'active' }).save().then((user) => user.toObject())
 
-export const createUser = (values: Record<string, any>) => new UserModel(values).save().then((user) => user.toObject())
+export const updateUserById = (id: string, values: Record<string, any>) =>
+  UserModel.findByIdAndUpdate(id, { ...values, status: 'active' }, { new: true })
 
-export const updateUserById = (id: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(id, values)
+export const getUsers = () => UserModel.find({ status: 'active' })
 
-export const deleteUserById = (id: string) => UserModel.findByIdAndDelete({ _id: id })
-
-export const getUsers = () => UserModel.find()
+export const blockUserById = (id: string) =>
+  UserModel.findByIdAndUpdate(id, { $set: { status: 'block' } }, { new: true })
