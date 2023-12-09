@@ -1,5 +1,5 @@
 import { sign } from 'jsonwebtoken'
-import { createUserToken, getUserTokenByUserId } from '~/models/database/UserToken'
+import { createUserToken, deleteUserTokenByUserId } from '~/models/database/UserToken'
 
 const generateTokens = async (user: any) => {
   try {
@@ -11,8 +11,7 @@ const generateTokens = async (user: any) => {
     const accessToken = sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_LIFE })
     const refreshToken = sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_LIFE })
 
-    const userToken = await getUserTokenByUserId(user._id)
-    if (userToken) await userToken.deleteOne()
+    await deleteUserTokenByUserId(user._id)
 
     await createUserToken({ userId: user._id, token: refreshToken })
     return Promise.resolve({ accessToken, refreshToken })

@@ -14,8 +14,8 @@ export const refreshToken = async (req: express.Request, res: express.Response) 
       const accessToken = jwt.sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_LIFE })
 
       res.status(HttpStatus.OK).json({
-        error: false,
-        data: accessToken,
+        error: 0,
+        data: { accessToken },
         message: Messages.ACCESS_TOKEN_CREATED
       })
     })

@@ -21,12 +21,15 @@ export const Messages = {
   LOGOUT_SUCCESSFUL: 'Logout successful.',
   LOGIN_SUCCESSFUL: 'Login successful.',
   DELETE_USER_SUCCESS: 'Delete user successfully.',
+  UPDATE_USER_SUCCESS: 'Update user successfully.',
   GET_ALL_USERS_SUCCESS: 'Get all users successfully.',
   ACCESS_TOKEN_CREATED: 'Access token created successfully.',
   GET_USER_INFO_SUCCESS: 'Get user information successfully.',
+  VALID_REFRESH_TOKEN: 'Valid refresh token.',
 
   // Error
   INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
+  INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
   ALL_FIELDS_REQUIRED: 'All fields are required.',
   EMAIL_ALREADY_EXIST: 'Email already exists.',
   USER_NOT_EXIST: 'User does not exist.',

@@ -23,7 +23,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     const verifiedPassword = await bcrypt.compare(req.body.password, user.password)
 
     if (!verifiedPassword) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ error: true, message: Messages.INVALID_EMAIL_PASSWORD })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
     }
 
     const { accessToken, refreshToken } = await generateTokens(user)

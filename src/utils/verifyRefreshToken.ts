@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
-import { UserTokenModel, getUserTokenByToken } from '~/models/database/UserToken'
+import { Messages } from '~/constants/message'
+import { getUserTokenByToken } from '~/models/database/UserToken'
 
 const verifyRefreshToken = (refreshToken: string) => {
   const privateKey = process.env.REFRESH_TOKEN_SECRET ?? ''
@@ -7,17 +8,17 @@ const verifyRefreshToken = (refreshToken: string) => {
   return new Promise((resolve, reject) => {
     getUserTokenByToken(refreshToken)
       .then((userToken) => {
-        if (!userToken) return reject({ error: 1, message: 'Invalid refresh token' })
+        if (!userToken) return reject({ error: 1, message: Messages.INVALID_REFRESH_TOKEN })
         jwt.verify(refreshToken, privateKey, (err, tokenDetails) => {
-          if (err) return reject({ error: true, message: 'Invalid refresh token' })
+          if (err) return reject({ error: 1, message: Messages.INVALID_REFRESH_TOKEN })
           resolve({
             tokenDetails,
             error: 0,
-            message: 'Valid refresh token'
+            message: Messages.VALID_REFRESH_TOKEN
           })
         })
       })
-      .catch(() => reject({ error: 1, message: 'Invalid refresh token' }))
+      .catch(() => reject({ error: 1, message: Messages.INVALID_REFRESH_TOKEN }))
   })
 }
 

@@ -17,7 +17,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     const tokenDetails = jwt.verify(accessTokenHeader, ACCESS_TOKEN_SECRET)
 
     if (!tokenDetails) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.HTTP_401_UNAUTHORIZED })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.HTTP_401_UNAUTHORIZED })
     }
 
     req.user = tokenDetails
