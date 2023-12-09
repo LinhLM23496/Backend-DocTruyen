@@ -27,13 +27,20 @@ export const Messages = {
   GET_USER_INFO_SUCCESS: 'Get user information successfully.',
   VALID_REFRESH_TOKEN: 'Valid refresh token.',
 
+  // Books
+  GET_ALL_BOOKS_SUCCESS: 'Get all books successfully.',
+  BOOK_NOT_EXIST: 'Book does not exist.',
+  UPDATE_BOOK_SUCCESS: 'Update book successfully.',
+  DELETE_BOOK_SUCCESS: 'Delete book successfully.',
+
   // Error
   INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
   ALL_FIELDS_REQUIRED: 'All fields are required.',
   EMAIL_ALREADY_EXIST: 'Email already exists.',
   USER_NOT_EXIST: 'User does not exist.',
-  FIELD_ID_REQUIRED: "Field 'id' must have a value."
+  FIELD_ID_REQUIRED: "Field 'id' must have a value.",
+  ERROR_OCCURRED_RETRY_LATER: 'An error occurred. Please try again later.'
 }
 
 // Sử dụng các hằng số trong mã của bạn
