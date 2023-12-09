@@ -29,9 +29,18 @@ export const Messages = {
 
   // Books
   GET_ALL_BOOKS_SUCCESS: 'Get all books successfully.',
+  GET_BOOK_SUCCESS: 'Get book successfully.',
   BOOK_NOT_EXIST: 'Book does not exist.',
   UPDATE_BOOK_SUCCESS: 'Update book successfully.',
   DELETE_BOOK_SUCCESS: 'Delete book successfully.',
+
+  // Chapters
+  GET_ALL_CHAPTERS_SUCCESS: 'Get all chapters successfully.',
+  GET_CHAPTER_SUCCESS: 'Get chapter successfully.',
+  CHAPTER_ALREADY_EXIST: 'Chapter already exists.',
+  CHAPTER_NOT_EXIST: 'Chapter does not exist.',
+  UPDATE_CHAPTER_SUCCESS: 'Update chapter successfully.',
+  DELETE_CHAPTER_SUCCESS: 'Delete chapter successfully.',
 
   // Error
   INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
@@ -40,6 +49,10 @@ export const Messages = {
   EMAIL_ALREADY_EXIST: 'Email already exists.',
   USER_NOT_EXIST: 'User does not exist.',
   FIELD_ID_REQUIRED: "Field 'id' must have a value.",
+  FIELD_BOOKID_REQUIRED: "Field 'bookId' must have a value.",
+  FIELD_BOOKID_CHAPERID_REQUIRED: "Fields 'bookId & chapterId' must have a value.",
+  FIELD_CHAPTERID_REQUIRED: "Field 'chapterId' must have a value.",
+  CHAPTER_NOT_EXIST_IN_BOOK: 'Chapter does not exist in this book.',
   ERROR_OCCURRED_RETRY_LATER: 'An error occurred. Please try again later.'
 }
 
