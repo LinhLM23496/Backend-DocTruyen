@@ -1,6 +1,16 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model, Model, Query } from 'mongoose'
 
-const UserSchema = new mongoose.Schema(
+export interface User {
+  username: string
+  email: string
+  roles: string[]
+  password: string
+  status: 'active' | 'block'
+}
+
+export interface UserDocument extends User, Document {}
+
+const UserSchema = new Schema<UserDocument>(
   {
     username: { type: String, required: true },
     email: { type: String, required: true },
@@ -20,19 +30,4 @@ const UserSchema = new mongoose.Schema(
   { toObject: { useProjection: true } }
 )
 
-export const UserModel = mongoose.model('User', UserSchema)
-
-export const getUserByEmail = (email: string) => UserModel.findOne({ email, status: 'active' })
-
-export const getUserById = (id: string) => UserModel.findOne({ _id: id, status: 'active' })
-
-export const createUser = (values: Record<string, any>) =>
-  new UserModel({ ...values, status: 'active' }).save().then((user) => user.toObject())
-
-export const updateUserById = (id: string, values: Record<string, any>) =>
-  UserModel.findByIdAndUpdate(id, { ...values, status: 'active' }, { new: true })
-
-export const getUsers = () => UserModel.find({ status: 'active' })
-
-export const blockUserById = (id: string) =>
-  UserModel.findByIdAndUpdate(id, { $set: { status: 'block' } }, { new: true })
+export const UserModel = model<UserDocument>('User', UserSchema)

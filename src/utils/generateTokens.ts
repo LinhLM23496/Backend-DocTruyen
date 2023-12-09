@@ -1,5 +1,5 @@
 import { sign } from 'jsonwebtoken'
-import { createUserToken, deleteUserTokenByUserId } from '~/models/database/UserToken'
+import { createUserToken, deleteUserTokenByUserId } from '~/services/userTokens.services'
 
 const generateTokens = async (user: any) => {
   try {

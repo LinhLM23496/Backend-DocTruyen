@@ -2,14 +2,16 @@ import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus } from '~/constants/httpStatus'
 import { Messages } from '~/constants/message'
-import { createBook, deleteBookById, getBookById, getBooks, updateBookById } from '~/models/database/Book'
+import { getBookById } from '~/services/books.services'
 import {
   createChapter,
   deleteChapterById,
   getChapterById,
   getChaptersByBookId,
   updateChapterById
-} from '~/models/database/Chapter'
+} from '~/services/chapters.services'
+
+import { sendInternalServerError } from '~/utils/helpers'
 
 export const getAllChaptersByBookId = async (req: Request, res: Response) => {
   try {
@@ -29,9 +31,7 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapters, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
@@ -50,9 +50,7 @@ export const getChapter = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapter, message: Messages.GET_CHAPTER_SUCCESS })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
@@ -79,9 +77,7 @@ export const createChapterByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.CREATED).json({ error: 0, data: chapter, message: Messages.HTTP_201_CREATED })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
@@ -109,9 +105,7 @@ export const updateChapterByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, data: updatedChapter, message: Messages.UPDATE_BOOK_SUCCESS })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
@@ -123,8 +117,6 @@ export const deleteChapterByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_CHAPTER_SUCCESS })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }

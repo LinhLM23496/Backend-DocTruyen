@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import { Messages } from '~/constants/message'
-import { getUserTokenByToken } from '~/models/database/UserToken'
+import { getUserTokenByToken } from '~/services/userTokens.services'
 
 const verifyRefreshToken = (refreshToken: string) => {
   const privateKey = process.env.REFRESH_TOKEN_SECRET ?? ''

@@ -1,12 +1,12 @@
-import express from 'express'
-import { createUser, getUserByEmail, getUserById } from '~/models/database/User'
-import { generateHashPassword } from '~/utils/helpers'
+import express, { Request, Response } from 'express'
+import { generateHashPassword, sendInternalServerError } from '~/utils/helpers'
 import bcrypt from 'bcrypt'
 import generateTokens from '~/utils/generateTokens'
 import { Messages } from '~/constants/message'
 import { HttpStatus } from '~/constants/httpStatus'
+import { createUser, getUserByEmail } from '~/services/users.services'
 
-export const login = async (req: express.Request, res: express.Response) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body
 
@@ -34,13 +34,11 @@ export const login = async (req: express.Request, res: express.Response) => {
       message: Messages.LOGIN_SUCCESSFUL
     })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
-export const register = async (req: express.Request, res: express.Response) => {
+export const register = async (req: Request, res: Response) => {
   try {
     const { email, password, username } = req.body
 
@@ -64,8 +62,6 @@ export const register = async (req: express.Request, res: express.Response) => {
 
     return res.status(HttpStatus.CREATED).json({ error: 0, data: user, message: Messages.HTTP_201_CREATED })
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }

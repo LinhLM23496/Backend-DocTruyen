@@ -2,6 +2,7 @@ import express from 'express'
 import jwt from 'jsonwebtoken'
 import { HttpStatus } from '~/constants/httpStatus'
 import { Messages } from '~/constants/message'
+import { sendInternalServerError } from '~/utils/helpers'
 import verifyRefreshToken from '~/utils/verifyRefreshToken'
 
 export const refreshToken = async (req: express.Request, res: express.Response) => {
@@ -20,8 +21,6 @@ export const refreshToken = async (req: express.Request, res: express.Response) 
       })
     })
     .catch(() => {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+      return sendInternalServerError(res)
     })
 }

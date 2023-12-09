@@ -1,11 +1,26 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model } from 'mongoose'
 
-const Schema = mongoose.Schema
+export interface Book {
+  name: string
+  author: string
+  description?: string
+  cover?: string
+  banner?: string
+  category?: string[]
+  chapters?: number
+  views?: number
+  likes?: number
+  createdBy: Schema.Types.ObjectId
+  updatedAt?: Date
+  createdAt?: Date
+}
 
-const BookSchema = new Schema(
+export interface BookDocument extends Book, Document {}
+
+const BookSchema = new Schema<BookDocument>(
   {
-    name: { type: String, require: true },
-    author: { type: String, require: true },
+    name: { type: String, required: true },
+    author: { type: String, required: true },
     description: { type: String },
     cover: { type: String, trim: true },
     banner: { type: String, trim: true },
@@ -15,7 +30,7 @@ const BookSchema = new Schema(
     likes: { type: Number, default: 0 },
     createdBy: {
       type: Schema.Types.ObjectId,
-      require: true
+      required: true
     },
     updatedAt: {
       type: Date,
@@ -29,19 +44,4 @@ const BookSchema = new Schema(
   { toObject: { useProjection: true } }
 )
 
-export const BookModel = mongoose.model('Book', BookSchema)
-
-export const getBooks = () => BookModel.find()
-
-export const getMyBooks = (createdBy: string) => BookModel.find({ createdBy })
-
-export const getBookById = (id: string) => BookModel.findById({ _id: id })
-
-export const getBooksByCreatedBy = (createdById: string) => BookModel.find({ createdBy: createdById })
-
-export const createBook = (values: Record<string, any>) => new BookModel(values).save().then((book) => book.toObject())
-
-export const updateBookById = (id: string, values: Record<string, any>) =>
-  BookModel.findByIdAndUpdate(id, values, { new: true })
-
-export const deleteBookById = (id: string) => BookModel.findByIdAndDelete({ _id: id })
+export const BookModel = model<BookDocument>('Book', BookSchema)
