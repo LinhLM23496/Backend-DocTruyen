@@ -75,7 +75,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     await deleteUserTokenByUserId(id)
 
-    return res.status(HttpStatus.OK).json({ error: 0, data: userBlocked, message: Messages.DELETE_USER_SUCCESS })
+    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_USER_SUCCESS })
   } catch (error) {
     return res
       .status(HttpStatus.INTERNAL_SERVER_ERROR)

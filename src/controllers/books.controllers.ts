@@ -1,0 +1,111 @@
+import { Request, Response } from 'express'
+import { JwtPayload } from 'jsonwebtoken'
+import { HttpStatus } from '~/constants/httpStatus'
+import { Messages } from '~/constants/message'
+import { createBook, deleteBookById, getBookById, getBooks, updateBookById } from '~/models/database/Book'
+
+export const getAllBooks = async (req: Request, res: Response) => {
+  try {
+    const books = await getBooks()
+
+    return res.status(HttpStatus.OK).json({ error: 0, data: books, message: Messages.GET_ALL_BOOKS_SUCCESS })
+  } catch (error) {
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+  }
+}
+
+export const createBookDetail = async (req: Request, res: Response) => {
+  try {
+    const { name, author, description, cover, banner, category } = req.body
+    const { _id } = req.user as JwtPayload
+
+    if (!name || !author || !cover) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
+    }
+
+    const data: any = { name, author, cover, createdBy: _id }
+
+    if (description) data['description'] = description
+    if (banner) data['banner'] = banner
+    if (category) data['category'] = category
+
+    const book = await createBook(data)
+
+    if (!book)
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: 1, message: Messages.ERROR_OCCURRED_RETRY_LATER })
+
+    return res.status(HttpStatus.CREATED).json({ error: 0, data: book, message: Messages.HTTP_201_CREATED })
+  } catch (error) {
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+  }
+}
+
+export const updateBookDetail = async (req: Request, res: Response) => {
+  try {
+    const { bookId, name, author, description, cover, banner, category } = req.body
+    const { _id } = req.user as JwtPayload
+
+    const book = await getBookById(bookId)
+
+    if (!book) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.BOOK_NOT_EXIST })
+
+    if (book.createdBy && book.createdBy.toString() !== _id)
+      return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.FORBIDDEN_ACCESS })
+
+    const data: any = {}
+
+    if (name) data['name'] = name
+    if (author) data['author'] = author
+    if (description) data['description'] = description
+    if (cover) data['cover'] = cover
+    if (banner) data['banner'] = banner
+    if (category) data['category'] = category
+
+    if (Object.keys(data).length === 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
+    }
+
+    data['updatedAt'] = new Date()
+
+    const updatedBook = await updateBookById(bookId, data)
+
+    if (!updatedBook)
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: 1, message: Messages.ERROR_OCCURRED_RETRY_LATER })
+
+    return res.status(HttpStatus.OK).json({ error: 0, data: updatedBook, message: Messages.UPDATE_BOOK_SUCCESS })
+  } catch (error) {
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+  }
+}
+
+export const deleteBookDetail = async (req: Request, res: Response) => {
+  try {
+    const { bookId } = req.body
+    const { _id } = req.user as JwtPayload
+
+    const book = await getBookById(bookId)
+
+    if (!book) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.BOOK_NOT_EXIST })
+
+    if (book.createdBy && book.createdBy.toString() !== _id)
+      return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.FORBIDDEN_ACCESS })
+
+    await deleteBookById(bookId)
+
+    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_BOOK_SUCCESS })
+  } catch (error) {
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+  }
+}
