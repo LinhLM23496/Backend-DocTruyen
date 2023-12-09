@@ -33,6 +33,8 @@ export const BookModel = mongoose.model('Book', BookSchema)
 
 export const getBooks = () => BookModel.find()
 
+export const getMyBooks = (createdBy: string) => BookModel.find({ createdBy })
+
 export const getBookById = (id: string) => BookModel.findById({ _id: id })
 
 export const getBooksByCreatedBy = (createdById: string) => BookModel.find({ createdBy: createdById })

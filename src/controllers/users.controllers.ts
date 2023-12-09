@@ -45,10 +45,10 @@ export const getUserInfo = async (req: Request, res: Response) => {
 
 export const updateUserInfo = async (req: Request, res: Response) => {
   try {
-    const { id, username } = req.query
+    const { id, username } = req.body
 
     if (!id || typeof id !== 'string' || !username)
-      return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.FIELD_ID_REQUIRED })
+      return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
 
     const user = await updateUserById(id, { username })
 
@@ -64,7 +64,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
-    const { id } = req.query
+    const { id } = req.body
 
     if (!id || typeof id !== 'string')
       return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.FIELD_ID_REQUIRED })
