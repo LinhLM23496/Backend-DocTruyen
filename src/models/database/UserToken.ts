@@ -1,8 +1,14 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model, Model } from 'mongoose'
 
-const Schema = mongoose.Schema
+export interface UserToken {
+  userId: Schema.Types.ObjectId
+  token: string
+  createdAt?: Date
+}
 
-const UserTokenSchema = new Schema({
+export interface UserTokenDocument extends UserToken, Document {}
+
+const UserTokenSchema = new Schema<UserTokenDocument>({
   userId: {
     type: Schema.Types.ObjectId,
     required: true
@@ -18,13 +24,4 @@ const UserTokenSchema = new Schema({
   }
 })
 
-export const UserTokenModel = mongoose.model('UserToken', UserTokenSchema)
-
-export const createUserToken = (values: Record<string, any>) =>
-  new UserTokenModel(values).save().then((userToken) => userToken.toObject())
-
-export const getUserTokenByUserId = (userId: string) => UserTokenModel.findOne({ userId })
-
-export const getUserTokenByToken = (token: string) => UserTokenModel.findOne({ token })
-
-export const deleteUserTokenByUserId = (userId: string) => UserTokenModel.findOneAndDelete({ userId })
+export const UserTokenModel = model<UserTokenDocument>('UserToken', UserTokenSchema)

@@ -2,8 +2,9 @@ import { NextFunction, Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus } from '~/constants/httpStatus'
 import { Messages } from '~/constants/message'
-import { getBookById } from '~/models/database/Book'
-import { getChapterByBookIdAndNumChapter, getChapterById } from '~/models/database/Chapter'
+import { getBookById } from '~/services/books.services'
+import { getChapterByBookIdAndNumChapter, getChapterById } from '~/services/chapters.services'
+import { sendInternalServerError } from '~/utils/helpers'
 
 export const isOwnerChapter = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -36,9 +37,7 @@ export const isOwnerChapter = async (req: Request, res: Response, next: NextFunc
 
     return next()
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 
@@ -56,8 +55,6 @@ export const isHaveNumberChapter = async (req: Request, res: Response, next: Nex
 
     return next()
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }

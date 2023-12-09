@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus } from '~/constants/httpStatus'
 import { Messages } from '~/constants/message'
+import { sendInternalServerError, sendUnauthorized } from '~/utils/helpers'
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const bearerToken = req.headers.authorization
@@ -17,13 +18,13 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     const tokenDetails = jwt.verify(accessTokenHeader, ACCESS_TOKEN_SECRET)
 
     if (!tokenDetails) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.HTTP_401_UNAUTHORIZED })
+      return sendUnauthorized(res)
     }
 
     req.user = tokenDetails
     return next()
   } catch (error) {
-    return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.HTTP_401_UNAUTHORIZED })
+    return sendUnauthorized(res)
   }
 }
 
@@ -38,9 +39,7 @@ export const isOwner = async (req: Request, res: Response, next: NextFunction) =
 
     return next()
   } catch (error) {
-    return res
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .send({ error: 1, message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+    return sendInternalServerError(res)
   }
 }
 

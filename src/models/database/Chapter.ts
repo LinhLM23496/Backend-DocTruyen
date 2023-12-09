@@ -1,6 +1,19 @@
-import mongoose from 'mongoose'
+import { Schema, model } from 'mongoose'
 
-const Schema = mongoose.Schema
+export interface Chapter {
+  title: string
+  numberChapter: number
+  description?: string
+  cover?: string
+  views?: number
+  likes?: number
+  bookId: Schema.Types.ObjectId
+  createdBy: Schema.Types.ObjectId
+  updatedAt?: Date
+  createdAt?: Date
+}
+
+export interface ChapterDocument extends Chapter, Document {}
 
 const ChapterSchema = new Schema(
   {
@@ -30,28 +43,4 @@ const ChapterSchema = new Schema(
   { toObject: { useProjection: true } }
 )
 
-export const ChapterModel = mongoose.model('Chapter', ChapterSchema)
-
-export const getChaptersByBookId = (bookId: string) => ChapterModel.find({ bookId })
-
-export const getChapterById = (id: string) => ChapterModel.findById({ _id: id })
-
-export const getChapterByBookIdAndNumChapter = (id: string, numberChapter: number) =>
-  ChapterModel.findOne({ bookId: id, numberChapter })
-
-export const createChapter = (values: Record<string, any>) =>
-  new ChapterModel(values).save().then((book) => book.toObject())
-
-export const updateChapterById = (id: string, values: Record<string, any>) =>
-  ChapterModel.findByIdAndUpdate(id, values, { new: true })
-
-export const deleteChapterById = (id: string) => ChapterModel.findByIdAndDelete({ _id: id })
-
-export const deleteMutilChaptersByBookId = async (bookId: string) => {
-  try {
-    await ChapterModel.deleteMany({ bookId })
-  } catch (error) {
-    console.error('Error deleting chapters:', error)
-    throw error
-  }
-}
+export const ChapterModel = model<ChapterDocument>('Chapter', ChapterSchema)
