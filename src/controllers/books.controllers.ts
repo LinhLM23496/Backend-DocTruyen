@@ -2,22 +2,20 @@ import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus } from '~/constants/httpStatus'
 import { Messages } from '~/constants/message'
-import {
-  createBook,
-  deleteBookById,
-  getBookById,
-  getBooks,
-  getMyBooks,
-  updateBookById
-} from '~/services/books.services'
+import { BookModel } from '~/models/database/Book'
+import { createBook, deleteBookById, getBookById, getMyBooks, updateBookById } from '~/services/books.services'
 import { deleteMutilChaptersByBookId } from '~/services/chapters.services'
 import { sendInternalServerError } from '~/utils/helpers'
+import { paginateResults } from '~/utils/pagination'
 
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
-    const books = await getBooks()
+    const filter = {
+      // status: 'active'
+    }
+    const { paging, results: books } = await paginateResults(BookModel, req, filter)
 
-    return res.status(HttpStatus.OK).json({ error: 0, data: books, message: Messages.GET_ALL_BOOKS_SUCCESS })
+    return res.status(HttpStatus.OK).json({ error: 0, data: books, paging, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }
