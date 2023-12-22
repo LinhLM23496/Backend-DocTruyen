@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken'
-import { Messages } from '~/constants/message'
-import { getUserTokenByToken } from '~/services/userTokens.services'
+import { Messages } from '~/constants'
+import { userTokensServices } from '~/services'
 
-const verifyRefreshToken = (refreshToken: string) => {
+export const verifyRefreshToken = (refreshToken: string) => {
   const privateKey = process.env.REFRESH_TOKEN_SECRET ?? ''
 
   return new Promise((resolve, reject) => {
-    getUserTokenByToken(refreshToken)
+    userTokensServices
+      .getUserTokenByToken(refreshToken)
       .then((userToken) => {
         if (!userToken) return reject({ error: 1, message: Messages.INVALID_REFRESH_TOKEN })
         jwt.verify(refreshToken, privateKey, (err, tokenDetails) => {
@@ -21,5 +22,3 @@ const verifyRefreshToken = (refreshToken: string) => {
       .catch(() => reject({ error: 1, message: Messages.INVALID_REFRESH_TOKEN }))
   })
 }
-
-export default verifyRefreshToken

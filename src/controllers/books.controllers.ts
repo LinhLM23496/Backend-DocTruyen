@@ -1,19 +1,36 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
+import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
 import { BookModel } from '~/models/database/Book'
-import { createBook, deleteBookById, getBookById, getMyBooks, updateBookById } from '~/services/books.services'
-import { deleteMutilChaptersByBookId } from '~/services/chapters.services'
-import { sendInternalServerError } from '~/utils/helpers'
-import { paginateResults } from '~/utils/pagination'
+import { booksServices, chaptersServices } from '~/services'
+import { sendInternalServerError } from '~/utils'
+
+interface Paging {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
 
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
-    const filter = {
-      // status: 'active'
+    const page = typeof req.query.page === 'string' ? parseInt(req.query.page) : PAGE
+    const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit) : LIMIT
+
+    const books = await BookModel.find()
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec()
+
+    const total = await BookModel.countDocuments()
+    const totalPages = Math.ceil(total / limit)
+
+    const paging: Paging = {
+      page,
+      limit,
+      total,
+      totalPages
     }
-    const { paging, results: books } = await paginateResults(BookModel, req, filter)
 
     return res.status(HttpStatus.OK).json({ error: 0, data: books, paging, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
@@ -24,7 +41,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 export const getAllMyBooks = async (req: Request, res: Response) => {
   try {
     const { _id } = req.user as JwtPayload
-    const books = await getMyBooks(_id)
+    const books = await booksServices.getMyBooks(_id)
 
     return res.status(HttpStatus.OK).json({ error: 0, data: books, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
@@ -40,7 +57,7 @@ export const getBook = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })
     }
 
-    const book = await getBookById(bookId)
+    const book = await booksServices.getBookById(bookId)
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
@@ -65,7 +82,7 @@ export const createBookDetail = async (req: Request, res: Response) => {
     if (banner) data['banner'] = banner
     if (category) data['category'] = category
 
-    const book = await createBook(data)
+    const book = await booksServices.createBook(data)
 
     if (!book)
       return res
@@ -96,7 +113,7 @@ export const updateBookDetail = async (req: Request, res: Response) => {
 
     data['updatedAt'] = new Date()
 
-    const updatedBook = await updateBookById(bookId, data)
+    const updatedBook = await booksServices.updateBookById(bookId, data)
 
     if (!updatedBook)
       return res
@@ -113,9 +130,9 @@ export const deleteBookDetail = async (req: Request, res: Response) => {
   try {
     const { bookId } = req.body
 
-    await deleteBookById(bookId)
+    await booksServices.deleteBookById(bookId)
 
-    deleteMutilChaptersByBookId(bookId)
+    await chaptersServices.deleteMutilChaptersByBookId(bookId)
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_BOOK_SUCCESS })
   } catch (error) {

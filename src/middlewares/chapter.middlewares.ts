@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
-import { getBookById } from '~/services/books.services'
-import { getChapterByBookIdAndNumChapter, getChapterById } from '~/services/chapters.services'
-import { sendInternalServerError } from '~/utils/helpers'
+import { HttpStatus, Messages } from '~/constants'
+import { booksServices, chaptersServices } from '~/services'
+import { sendInternalServerError } from '~/utils'
 
 export const isOwnerChapter = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -15,7 +13,7 @@ export const isOwnerChapter = async (req: Request, res: Response, next: NextFunc
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.FIELD_BOOKID_CHAPERID_REQUIRED })
     }
 
-    const book = await getBookById(bookId)
+    const book = await booksServices.getBookById(bookId)
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
@@ -23,7 +21,7 @@ export const isOwnerChapter = async (req: Request, res: Response, next: NextFunc
       return res.status(HttpStatus.FORBIDDEN).send({ error: 1, message: Messages.HTTP_403_FORBIDDEN })
     }
 
-    const chapter = await getChapterById(chapterId)
+    const chapter = await chaptersServices.getChapterById(chapterId)
 
     if (!chapter) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.CHAPTER_NOT_EXIST })
 
@@ -49,7 +47,7 @@ export const isHaveNumberChapter = async (req: Request, res: Response, next: Nex
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const chapter = await getChapterByBookIdAndNumChapter(bookId, numberChapter)
+    const chapter = await chaptersServices.getChapterByBookIdAndNumChapter(bookId, numberChapter)
 
     if (chapter) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.CHAPTER_ALREADY_EXIST })
 

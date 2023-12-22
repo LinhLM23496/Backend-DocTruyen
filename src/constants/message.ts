@@ -42,6 +42,9 @@ export const Messages = {
   UPDATE_CHAPTER_SUCCESS: 'Update chapter successfully.',
   DELETE_CHAPTER_SUCCESS: 'Delete chapter successfully.',
 
+  // Suggestion
+  GET_SUGGESTION_SUCCESS: 'Get suggestion successfully.',
+
   // Error
   INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',

@@ -1,11 +1,9 @@
-import express from 'express'
+import { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
-import { sendInternalServerError } from '~/utils/helpers'
-import verifyRefreshToken from '~/utils/verifyRefreshToken'
+import { HttpStatus, Messages } from '~/constants'
+import { sendInternalServerError, verifyRefreshToken } from '~/utils'
 
-export const refreshToken = async (req: express.Request, res: express.Response) => {
+export const refreshToken = async (req: Request, res: Response) => {
   const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET ?? ''
   const ACCESS_TOKEN_LIFE = process.env.ACCESS_TOKEN_LIFE ?? ''
 
