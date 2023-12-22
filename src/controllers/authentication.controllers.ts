@@ -1,10 +1,8 @@
-import express, { Request, Response } from 'express'
-import { generateHashPassword, sendInternalServerError } from '~/utils/helpers'
+import { Request, Response } from 'express'
 import bcrypt from 'bcrypt'
-import generateTokens from '~/utils/generateTokens'
-import { Messages } from '~/constants/message'
-import { HttpStatus } from '~/constants/httpStatus'
-import { createUser, getUserByEmail } from '~/services/users.services'
+import { HttpStatus, Messages } from '~/constants'
+import { generateHashPassword, generateTokens, sendInternalServerError } from '~/utils'
+import { usersServices } from '~/services'
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -14,7 +12,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const user = await getUserByEmail(email).select('+password')
+    const user = await usersServices.getUserByEmail(email).select('+password')
 
     if (!user || !user.password) {
       return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
@@ -46,7 +44,7 @@ export const register = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const existingUser = await getUserByEmail(email)
+    const existingUser = await usersServices.getUserByEmail(email)
 
     if (existingUser) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.EMAIL_ALREADY_EXIST })
@@ -54,7 +52,7 @@ export const register = async (req: Request, res: Response) => {
 
     const hashPassword = await generateHashPassword(password)
 
-    const user = await createUser({
+    const user = await usersServices.createUser({
       email,
       username,
       password: hashPassword

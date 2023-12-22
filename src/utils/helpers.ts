@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt'
 import { Response } from 'express'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
+import { HttpStatus, Messages } from '~/constants'
 
 const SALT_ROUND = process.env.SALT_ROUND ?? 10
 

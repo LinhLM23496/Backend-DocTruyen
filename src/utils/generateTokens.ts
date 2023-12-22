@@ -1,7 +1,7 @@
 import { sign } from 'jsonwebtoken'
-import { createUserToken, deleteUserTokenByUserId } from '~/services/userTokens.services'
+import { userTokensServices } from '~/services'
 
-const generateTokens = async (user: any) => {
+export const generateTokens = async (user: any) => {
   try {
     const payload = { _id: user._id, roles: user.roles }
     const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET ?? ''
@@ -11,13 +11,11 @@ const generateTokens = async (user: any) => {
     const accessToken = sign(payload, ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_LIFE })
     const refreshToken = sign(payload, REFRESH_TOKEN_SECRET, { expiresIn: REFRESH_TOKEN_LIFE })
 
-    await deleteUserTokenByUserId(user._id)
+    await userTokensServices.deleteUserTokenByUserId(user._id)
 
-    await createUserToken({ userId: user._id, token: refreshToken })
+    await userTokensServices.createUserToken({ userId: user._id, token: refreshToken })
     return Promise.resolve({ accessToken, refreshToken })
   } catch (error) {
     return Promise.reject(error)
   }
 }
-
-export default generateTokens

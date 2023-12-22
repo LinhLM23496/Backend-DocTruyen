@@ -1,12 +1,12 @@
 import { Request } from 'express'
 import { Document, Model, Query } from 'mongoose'
-import { LIMIT, PAGE } from '~/constants/enum'
+import { LIMIT, PAGE } from '~/constants'
 
 interface Paging {
   page: number
   limit: number
   total: number
-  totalPage: number
+  totalPages: number
 }
 
 export const paginateResults = async <T extends Document>(
@@ -22,13 +22,13 @@ export const paginateResults = async <T extends Document>(
   const countQuery = query.clone()
 
   const total = await countQuery.countDocuments()
-  const totalPage = Math.ceil(total / limit)
+  const totalPages = Math.ceil(total / limit)
 
   const paging: Paging = {
     page,
     limit,
     total,
-    totalPage
+    totalPages
   }
 
   const results = await query

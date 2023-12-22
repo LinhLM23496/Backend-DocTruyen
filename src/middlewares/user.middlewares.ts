@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
-import { sendInternalServerError, sendUnauthorized } from '~/utils/helpers'
+import { HttpStatus, Messages } from '~/constants'
+import { sendInternalServerError, sendUnauthorized } from '~/utils'
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const bearerToken = req.headers.authorization

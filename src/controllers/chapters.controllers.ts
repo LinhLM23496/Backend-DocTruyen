@@ -1,17 +1,8 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus } from '~/constants/httpStatus'
-import { Messages } from '~/constants/message'
-import { getBookById } from '~/services/books.services'
-import {
-  createChapter,
-  deleteChapterById,
-  getChapterById,
-  getChaptersByBookId,
-  updateChapterById
-} from '~/services/chapters.services'
-
-import { sendInternalServerError } from '~/utils/helpers'
+import { HttpStatus, Messages } from '~/constants'
+import { booksServices, chaptersServices } from '~/services'
+import { sendInternalServerError } from '~/utils'
 
 export const getAllChaptersByBookId = async (req: Request, res: Response) => {
   try {
@@ -21,13 +12,13 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })
     }
 
-    const book = await getBookById(bookId)
+    const book = await booksServices.getBookById(bookId)
 
     if (!book) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.BOOK_NOT_EXIST })
     }
 
-    const chapters = await getChaptersByBookId(bookId)
+    const chapters = await chaptersServices.getChaptersByBookId(bookId)
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapters, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
@@ -42,7 +33,7 @@ export const getChapter = async (req: Request, res: Response) => {
     if (!chapterId) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
     }
-    const chapter = await getChapterById(chapterId)
+    const chapter = await chaptersServices.getChapterById(chapterId)
 
     if (!chapter) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.CHAPTER_NOT_EXIST })
@@ -68,7 +59,7 @@ export const createChapterByBookId = async (req: Request, res: Response) => {
     if (description) data['description'] = description
     if (cover) data['cover'] = cover
 
-    const chapter = await createChapter(data)
+    const chapter = await chaptersServices.createChapter(data)
 
     if (!chapter)
       return res
@@ -96,7 +87,7 @@ export const updateChapterByBookId = async (req: Request, res: Response) => {
 
     data['updatedAt'] = new Date()
 
-    const updatedChapter = await updateChapterById(chapterId, data)
+    const updatedChapter = await chaptersServices.updateChapterById(chapterId, data)
 
     if (!updatedChapter)
       return res
@@ -113,7 +104,7 @@ export const deleteChapterByBookId = async (req: Request, res: Response) => {
   try {
     const { chapterId } = req.body
 
-    await deleteChapterById(chapterId)
+    await chaptersServices.deleteChapterById(chapterId)
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_CHAPTER_SUCCESS })
   } catch (error) {
