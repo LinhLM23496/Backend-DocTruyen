@@ -5,13 +5,15 @@ import {
   getAllBooks,
   getAllMyBooks,
   getBook,
-  updateBookDetail
+  updateBookDetail,
+  getSuggestions
 } from '~/controllers/books.controllers'
 import { isOwnerBook } from '~/middlewares/book.middlewares'
 import { isAuthenticated, roleCheck } from '~/middlewares/user.middlewares'
 
 export default (router: express.Router) => {
   router.get('/books', getAllBooks)
+  router.get('/books/suggestion', getSuggestions)
   router.get('/my-books', isAuthenticated, getAllMyBooks)
   router.get('/book', getBook)
   router.post('/book', isAuthenticated, roleCheck(['user']), createBookDetail)

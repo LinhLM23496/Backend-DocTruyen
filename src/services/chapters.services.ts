@@ -1,7 +1,74 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
+import { Paging } from './types'
+import mongoose, { ObjectId } from 'mongoose'
 
-export const getChaptersByBookId = async (bookId: string): Promise<ChapterDocument[]> => {
-  return ChapterModel.find({ bookId })
+type GetChaptersByBookIdType = {
+  bookId: string
+  page: number
+  limit: number
+  order?: string
+  odir?: 'ascending' | 'descending'
+}
+
+type GetChapterShort = {
+  _id: ObjectId
+  title: string
+  numberChapter: number
+}
+
+type GetAllChapter = {
+  data: GetChapterShort[]
+  paging: Paging
+}
+
+export const getChaptersByBookId = async ({
+  bookId,
+  page,
+  limit,
+  odir
+}: GetChaptersByBookIdType): Promise<GetAllChapter> => {
+  // const data = await ChapterModel.find({ bookId })
+  //   .select('_id title numberChapter')
+  //   .sort({ numberChapter: odir || 'ascending' })
+  //   .skip((page - 1) * limit)
+  //   .limit(limit)
+  //   .exec()
+
+  const data = await ChapterModel.aggregate([
+    {
+      $match: { bookId }
+    },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        numberChapter: 1
+      }
+    },
+    {
+      $sort: {
+        numberChapter: 1
+      }
+    },
+    {
+      $skip: (page - 1) * limit
+    },
+    {
+      $limit: limit
+    }
+  ])
+
+  const total = await ChapterModel.find({ bookId }).countDocuments()
+  const totalPages = Math.ceil(total / limit)
+
+  const paging: Paging = {
+    page,
+    limit,
+    total,
+    totalPages
+  }
+
+  return { data, paging }
 }
 
 export const getChapterById = async (id: string): Promise<ChapterDocument | null> => {
