@@ -1,12 +1,15 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus, Messages } from '~/constants'
+import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
 import { booksServices, chaptersServices } from '~/services'
 import { sendInternalServerError } from '~/utils'
 
 export const getAllChaptersByBookId = async (req: Request, res: Response) => {
   try {
-    const { bookId } = req.query
+    const { bookId, page: pageReq, limit: limitReq } = req.query
+    const page = typeof pageReq === 'string' ? parseInt(pageReq) : PAGE
+    const limit = typeof limitReq === 'string' ? parseInt(limitReq) : LIMIT
+    const odir = req.query.odir === 'desc' ? 'descending' : 'ascending'
 
     if (!bookId || typeof bookId !== 'string') {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })
@@ -18,21 +21,28 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.BOOK_NOT_EXIST })
     }
 
-    const chapters = await chaptersServices.getChaptersByBookId(bookId)
+    const chapters = await chaptersServices.getChaptersByBookId({
+      bookId,
+      page,
+      limit,
+      odir
+    })
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapters, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
+    console.log('error', error)
     return sendInternalServerError(res)
   }
 }
 
 export const getChapter = async (req: Request, res: Response) => {
   try {
-    const { chapterId } = req.body
+    const { chapterId } = req.query
 
-    if (!chapterId) {
+    if (!chapterId || typeof chapterId !== 'string') {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
     }
+
     const chapter = await chaptersServices.getChapterById(chapterId)
 
     if (!chapter) {

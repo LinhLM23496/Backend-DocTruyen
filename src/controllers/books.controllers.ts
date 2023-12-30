@@ -3,6 +3,7 @@ import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
 import { BookModel } from '~/models/database/Book'
 import { booksServices, chaptersServices } from '~/services'
+import { getListSuggestions } from '~/services/books.services'
 import { sendInternalServerError } from '~/utils'
 
 interface Paging {
@@ -135,6 +136,18 @@ export const deleteBookDetail = async (req: Request, res: Response) => {
     await chaptersServices.deleteMutilChaptersByBookId(bookId)
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_BOOK_SUCCESS })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}
+
+export const getSuggestions = async (req: Request, res: Response) => {
+  const LIMIT_SUGGESTION = 4
+  try {
+    const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit) : LIMIT_SUGGESTION
+    const books = await getListSuggestions({ limit })
+
+    return res.status(HttpStatus.OK).json({ error: 0, data: books, message: Messages.GET_SUGGESTION_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }

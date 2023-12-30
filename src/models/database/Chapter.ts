@@ -1,14 +1,16 @@
-import { Schema, model } from 'mongoose'
+import { ObjectId, Schema, model } from 'mongoose'
 
 export interface Chapter {
+  _id: ObjectId
   title: string
   numberChapter: number
   description?: string
+  content: string
   cover?: string
   views?: number
   likes?: number
-  bookId: Schema.Types.ObjectId
-  createdBy: Schema.Types.ObjectId
+  bookId: string
+  createdBy: string
   updatedAt?: Date
   createdAt?: Date
 }
@@ -20,15 +22,16 @@ const ChapterSchema = new Schema(
     title: { type: String, require: true },
     numberChapter: { type: Number, default: 1, require: true },
     description: { type: String },
+    content: { type: String, require: true },
     cover: { type: String, trim: true },
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
     bookId: {
-      type: Schema.Types.ObjectId,
+      type: String,
       require: true
     },
     createdBy: {
-      type: Schema.Types.ObjectId,
+      type: String,
       require: true
     },
     updatedAt: {
