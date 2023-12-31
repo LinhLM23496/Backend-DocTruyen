@@ -1,6 +1,7 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
 import { Paging } from './types'
 import mongoose, { ObjectId } from 'mongoose'
+import { BookModel } from '~/models/database/Book'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -72,7 +73,10 @@ export const getChaptersByBookId = async ({
 }
 
 export const getChapterById = async (id: string): Promise<ChapterDocument | null> => {
-  return ChapterModel.findById(id)
+  const chapter = await ChapterModel.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true })
+  await BookModel.findByIdAndUpdate(chapter?.bookId, { $inc: { views: 1 } })
+
+  return chapter
 }
 
 export const getChapterByBookIdAndNumChapter = async (

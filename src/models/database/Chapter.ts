@@ -26,22 +26,10 @@ const ChapterSchema = new Schema(
     cover: { type: String, trim: true },
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
-    bookId: {
-      type: String,
-      require: true
-    },
-    createdBy: {
-      type: String,
-      require: true
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
-    }
+    bookId: { type: String, require: true },
+    createdBy: { type: String, require: true },
+    updatedAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }
   },
   { toObject: { useProjection: true } }
 )
