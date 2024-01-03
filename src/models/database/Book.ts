@@ -10,7 +10,7 @@ export interface Book {
   chapters?: number
   views?: number
   likes?: number
-  createdBy: Schema.Types.ObjectId
+  createdBy?: string
   updatedAt?: Date
   createdAt?: Date
 }
@@ -28,10 +28,7 @@ const BookSchema = new Schema<BookDocument>(
     chapters: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      required: true
-    },
+    createdBy: { type: String },
     updatedAt: {
       type: Date,
       default: Date.now

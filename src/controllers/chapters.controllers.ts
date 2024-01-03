@@ -43,7 +43,7 @@ export const getChapter = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
     }
 
-    const chapter = await chaptersServices.getChapterById(chapterId)
+    const chapter = await chaptersServices.getchapterInfo(chapterId)
 
     if (!chapter) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.CHAPTER_NOT_EXIST })

@@ -62,7 +62,15 @@ export const getBook = async (req: Request, res: Response) => {
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
-    return res.status(HttpStatus.OK).json({ error: 0, data: book, message: Messages.GET_BOOK_SUCCESS })
+    const chapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
+
+    const data = { ...book.toJSON(), ...chapterId }
+
+    return res.status(HttpStatus.OK).json({
+      error: 0,
+      data,
+      message: Messages.GET_BOOK_SUCCESS
+    })
   } catch (error) {
     return sendInternalServerError(res)
   }
