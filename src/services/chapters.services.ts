@@ -1,6 +1,7 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
 import { Paging } from './types'
-import mongoose, { ObjectId } from 'mongoose'
+import { ObjectId } from 'mongoose'
+import { BookModel } from '~/models/database/Book'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -21,19 +22,22 @@ type GetAllChapter = {
   paging: Paging
 }
 
+type ChapterFirstLastId = {
+  firstChapterId?: string | null
+  lastChapterId?: string | null
+}
+
+type GetDataChapter = ChapterDocument & {
+  previousId?: string | null
+  nextId?: string | null
+}
+
 export const getChaptersByBookId = async ({
   bookId,
   page,
   limit,
   odir
 }: GetChaptersByBookIdType): Promise<GetAllChapter> => {
-  // const data = await ChapterModel.find({ bookId })
-  //   .select('_id title numberChapter')
-  //   .sort({ numberChapter: odir || 'ascending' })
-  //   .skip((page - 1) * limit)
-  //   .limit(limit)
-  //   .exec()
-
   const data = await ChapterModel.aggregate([
     {
       $match: { bookId }
@@ -72,14 +76,44 @@ export const getChaptersByBookId = async ({
 }
 
 export const getChapterById = async (id: string): Promise<ChapterDocument | null> => {
-  return ChapterModel.findById(id)
+  const chapter = await ChapterModel.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true })
+  await BookModel.findByIdAndUpdate(chapter?.bookId, { $inc: { views: 1 } })
+
+  return chapter
 }
 
-export const getChapterByBookIdAndNumChapter = async (
-  id: string,
-  numberChapter: number
-): Promise<ChapterDocument | null> => {
-  return ChapterModel.findOne({ bookId: id, numberChapter })
+export const getChapterByBookIdAndNumChapter = async (id: string, numberChapter: number): Promise<ChapterDocument> => {
+  if (!id) throw 'error'
+  const data = await ChapterModel.findOne({ bookId: id, numberChapter })
+  if (!data) throw 'error'
+
+  await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
+
+  return data.toJSON()
+}
+
+export const getFirstLastChapterIdByBookId = async (id: string): Promise<ChapterFirstLastId | null> => {
+  const firstChapter = await ChapterModel.findOne({ bookId: id, numberChapter: 1 }).select('_id').exec()
+  const totalChapter = await ChapterModel.find({ bookId: id }).countDocuments()
+  const lastChapter = await ChapterModel.findOne({ bookId: id, numberChapter: totalChapter }).select('_id').exec()
+
+  if (!firstChapter || !lastChapter) {
+    throw 'error getFirstLastChapterIdByBookId'
+  }
+
+  return { firstChapterId: firstChapter._id?.toString(), lastChapterId: lastChapter._id?.toString() }
+}
+
+export const getPerviorNextChapterIdByBookId = async (id: string): Promise<ChapterFirstLastId | null> => {
+  const firstChapter = await ChapterModel.findOne({ bookId: id, numberChapter: 1 }).select('_id').exec()
+  const totalChapter = await ChapterModel.find({ bookId: id }).countDocuments()
+  const lastChapter = await ChapterModel.findOne({ bookId: id, numberChapter: totalChapter }).select('_id').exec()
+
+  if (!firstChapter || !lastChapter) {
+    throw 'error getFirstLastChapterIdByBookId'
+  }
+
+  return { firstChapterId: firstChapter._id?.toString(), lastChapterId: lastChapter._id?.toString() }
 }
 
 export const createChapter = async (values: Chapter): Promise<ChapterDocument> => {
@@ -102,4 +136,34 @@ export const deleteMutilChaptersByBookId = async (bookId: string): Promise<void>
     console.error('Error deleting chapters:', error)
     throw error
   }
+}
+
+export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
+  if (!chapterId) throw 'error'
+  const data = await ChapterModel.findByIdAndUpdate(chapterId, { $inc: { views: 1 } }, { new: true })
+  if (!data) throw 'error'
+
+  const { numberChapter, bookId } = data
+
+  await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
+
+  const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
+  let previousId = null
+  let nextId = null
+
+  if (numberChapter > 1) {
+    const previous = await ChapterModel.findOne({ bookId, numberChapter: numberChapter - 1 })
+      .select('_id')
+      .exec()
+    previousId = previous?._id.toString()
+  }
+
+  if (!!numberChapter && numberChapter < totalChapter) {
+    const next = await ChapterModel.findOne({ bookId, numberChapter: numberChapter + 1 })
+      .select('_id')
+      .exec()
+    nextId = next?._id.toString()
+  }
+
+  return { ...data.toJSON(), previousId, nextId }
 }
