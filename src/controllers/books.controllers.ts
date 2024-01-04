@@ -20,6 +20,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 
     const books = await BookModel.find()
       .skip((page - 1) * limit)
+      .select('_id cover chapters likes views name')
       .limit(limit)
       .exec()
 
