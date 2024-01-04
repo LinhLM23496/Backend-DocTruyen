@@ -92,10 +92,10 @@ export const getChapterByBookIdAndNumChapter = async (id: string, numberChapter:
   return data.toJSON()
 }
 
-export const getFirstLastChapterIdByBookId = async (id: string): Promise<ChapterFirstLastId | null> => {
-  const firstChapter = await ChapterModel.findOne({ bookId: id, numberChapter: 1 }).select('_id').exec()
-  const totalChapter = await ChapterModel.find({ bookId: id }).countDocuments()
-  const lastChapter = await ChapterModel.findOne({ bookId: id, numberChapter: totalChapter }).select('_id').exec()
+export const getFirstLastChapterIdByBookId = async (bookId: string): Promise<ChapterFirstLastId | null> => {
+  const firstChapter = await ChapterModel.findOne({ bookId, numberChapter: 1 }).select('_id').exec()
+  const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
+  const lastChapter = await ChapterModel.findOne({ bookId, numberChapter: totalChapter }).select('_id').exec()
 
   if (!firstChapter || !lastChapter) {
     throw 'error getFirstLastChapterIdByBookId'
