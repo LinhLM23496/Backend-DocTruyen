@@ -6,6 +6,7 @@ import compression from 'compression'
 import cors from 'cors'
 import router from './router'
 import dbConnect from './dbConnection'
+import triggerAction from './triggerAction'
 
 dotenv.config() //must have
 
@@ -21,9 +22,10 @@ app.use(express.json())
 const server = http.createServer(app)
 
 server.listen(port, () => {
-  console.log(`Server running onn http://localhost:${port}`)
+  console.log(`Server running on http://localhost:${port}`)
 })
 
 dbConnect()
+triggerAction()
 
 app.use('/api/', router())
