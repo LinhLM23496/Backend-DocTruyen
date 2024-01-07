@@ -1,8 +1,8 @@
 import { Query } from 'mongoose'
 import { UserDocument, UserModel } from '~/models/database/User'
 
-export const getUserByEmail = (email: string): Query<UserDocument | null, UserDocument> =>
-  UserModel.findOne({ email, status: 'active' })
+export const getUserByUserName = (userName: string): Query<UserDocument | null, UserDocument> =>
+  UserModel.findOne({ userName, status: 'active' })
 
 export const getUserById = (id: string): Promise<UserDocument | null> =>
   UserModel.findOne({ _id: id, status: 'active' }).exec()

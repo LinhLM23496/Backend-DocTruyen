@@ -1,27 +1,42 @@
 import { Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import { HttpStatus, Messages } from '~/constants'
-import { generateHashPassword, generateTokens, sendInternalServerError } from '~/utils'
+import {
+  checkExistEmoji,
+  generateHashPassword,
+  generateTokens,
+  sendInternalServerError,
+  validatePassword,
+  validateSpace,
+  validateSpecialCharacter,
+  validateTextMaxLength,
+  validateTextMinLength,
+  validateUserName
+} from '~/utils'
 import { usersServices } from '~/services'
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body
+    const { userName, password } = req.body
 
-    if (!email || !password) {
+    if (!userName || typeof userName !== 'string' || !password) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const user = await usersServices.getUserByEmail(email).select('+password')
+    if (!validateUserName(userName)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.INVALID_USERNAME_PASSWORD })
+    }
+
+    const user = await usersServices.getUserByUserName(userName.toLowerCase().trim()).select('+password')
 
     if (!user || !user.password) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_USERNAME_PASSWORD })
     }
 
     const verifiedPassword = await bcrypt.compare(req.body.password, user.password)
 
     if (!verifiedPassword) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_USERNAME_PASSWORD })
     }
 
     const { accessToken, refreshToken } = await generateTokens(user)
@@ -38,13 +53,17 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, username } = req.body
+    const { userName, password, displayName } = req.body
 
-    if (!email || !password || !username) {
+    if (!userName || typeof userName !== 'string' || !password) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const existingUser = await usersServices.getUserByEmail(email)
+    if (!validateUserName(userName) || !validatePassword(password)) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.INVALID_USERNAME_PASSWORD })
+    }
+
+    const existingUser = await usersServices.getUserByUserName(userName.toLowerCase().trim())
 
     if (existingUser) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.EMAIL_ALREADY_EXIST })
@@ -53,8 +72,8 @@ export const register = async (req: Request, res: Response) => {
     const hashPassword = await generateHashPassword(password)
 
     const user = await usersServices.createUser({
-      email,
-      username,
+      userName,
+      displayName,
       password: hashPassword
     })
 

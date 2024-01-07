@@ -46,7 +46,7 @@ export const Messages = {
   GET_SUGGESTION_SUCCESS: 'Get suggestion successfully.',
 
   // Error
-  INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
+  INVALID_USERNAME_PASSWORD: 'Invalid userName or password.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
   ALL_FIELDS_REQUIRED: 'All fields are required.',
   EMAIL_ALREADY_EXIST: 'Email already exists.',
