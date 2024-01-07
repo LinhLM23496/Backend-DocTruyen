@@ -1,8 +1,8 @@
 import { Document, Schema, model, Model, Query } from 'mongoose'
 
 export interface User {
-  username: string
-  email: string
+  userName: string
+  displayName: string
   roles: string[]
   password: string
   status: 'active' | 'block'
@@ -12,8 +12,8 @@ export interface UserDocument extends User, Document {}
 
 const UserSchema = new Schema<UserDocument>(
   {
-    username: { type: String, required: true },
-    email: { type: String, required: true },
+    userName: { type: String, required: true },
+    displayName: { type: String },
     roles: {
       type: [String],
       enum: ['user', 'admin', 'super_admin'],
