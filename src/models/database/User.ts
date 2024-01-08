@@ -1,7 +1,7 @@
 import { Document, Schema, model, Model, Query } from 'mongoose'
 
 export interface User {
-  userName: string
+  email: string
   displayName: string
   roles: string[]
   password: string
@@ -12,7 +12,7 @@ export interface UserDocument extends User, Document {}
 
 const UserSchema = new Schema<UserDocument>(
   {
-    userName: { type: String, required: true },
+    email: { type: String, required: true },
     displayName: { type: String },
     roles: {
       type: [String],

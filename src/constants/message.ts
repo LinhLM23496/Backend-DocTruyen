@@ -22,10 +22,12 @@ export const Messages = {
   LOGIN_SUCCESSFUL: 'Login successful.',
   DELETE_USER_SUCCESS: 'Delete user successfully.',
   UPDATE_USER_SUCCESS: 'Update user successfully.',
+  UPDATE_PASSWORD_SUCCESS: 'Update password successfully.',
   GET_ALL_USERS_SUCCESS: 'Get all users successfully.',
   ACCESS_TOKEN_CREATED: 'Access token created successfully.',
   GET_USER_INFO_SUCCESS: 'Get user information successfully.',
   VALID_REFRESH_TOKEN: 'Valid refresh token.',
+  SENDED_CODE_EMAIL: 'Please check email.',
 
   // Books
   GET_ALL_BOOKS_SUCCESS: 'Get all books successfully.',
@@ -46,7 +48,7 @@ export const Messages = {
   GET_SUGGESTION_SUCCESS: 'Get suggestion successfully.',
 
   // Error
-  INVALID_USERNAME_PASSWORD: 'Invalid userName or password.',
+  INVALID_EMAIL_PASSWORD: 'Invalid email or password.',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token.',
   ALL_FIELDS_REQUIRED: 'All fields are required.',
   EMAIL_ALREADY_EXIST: 'Email already exists.',
@@ -56,7 +58,8 @@ export const Messages = {
   FIELD_BOOKID_CHAPERID_REQUIRED: "Fields 'bookId & chapterId' must have a value.",
   FIELD_CHAPTERID_REQUIRED: "Field 'chapterId' must have a value.",
   CHAPTER_NOT_EXIST_IN_BOOK: 'Chapter does not exist in this book.',
-  ERROR_OCCURRED_RETRY_LATER: 'An error occurred. Please try again later.'
+  ERROR_OCCURRED_RETRY_LATER: 'An error occurred. Please try again later.',
+  INVALID_CODE: 'Invalid code.'
 }
 
 // Sử dụng các hằng số trong mã của bạn

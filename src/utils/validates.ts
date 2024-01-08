@@ -20,7 +20,12 @@ export const validateTextMinLength = (text: string, length: number) => text?.tri
 
 export const validateTextMaxLength = (text: string, length: number) => text?.trim()?.length <= length
 
-export const validateUserName = (v: string): boolean => {
+export const validateEmail = (email: string) =>
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+    email
+  )
+
+export const validateDisplayName = (v: string): boolean => {
   return (
     validateTextMinLength(v, 6) &&
     validateTextMaxLength(v, 22) &&
