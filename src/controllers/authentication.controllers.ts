@@ -37,11 +37,11 @@ export const login = async (req: Request, res: Response) => {
       return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
     }
 
-    const { accessToken, refreshToken } = await generateTokens(user)
+    const token = await generateTokens(user)
 
     return res.status(HttpStatus.OK).json({
       error: 0,
-      data: { accessToken, refreshToken },
+      data: { token, userInfo: user },
       message: Messages.LOGIN_SUCCESSFUL
     })
   } catch (error) {

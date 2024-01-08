@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt'
 import { Response } from 'express'
 import { HttpStatus, Messages } from '~/constants'
 
-const SALT_ROUND = process.env.SALT_ROUND ?? 10
+const SALT_ROUND = Number(process.env.SALT_ROUND ?? 10)
 
 export const random = async () => await bcrypt.genSalt(Number(process.env.SALT))
 
