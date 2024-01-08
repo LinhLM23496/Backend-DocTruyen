@@ -17,3 +17,11 @@ export const sendInternalServerError = (res: Response) => {
 export const sendUnauthorized = (res: Response) => {
   return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.HTTP_401_UNAUTHORIZED })
 }
+
+export const generateRandomNumber = () => {
+  const min = 111111
+  const max = 999999
+  const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min
+
+  return randomNumber
+}
