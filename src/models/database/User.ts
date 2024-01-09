@@ -1,4 +1,4 @@
-import { Document, Schema, model, Model, Query } from 'mongoose'
+import { Document, Schema, model } from 'mongoose'
 
 export interface User {
   email: string
@@ -6,6 +6,8 @@ export interface User {
   roles: string[]
   password: string
   status: 'active' | 'block'
+  updatedAt?: Date
+  createdAt?: Date
 }
 
 export interface UserDocument extends User, Document {}
@@ -25,7 +27,9 @@ const UserSchema = new Schema<UserDocument>(
       enum: ['active', 'block'],
       default: 'active',
       select: false
-    }
+    },
+    updatedAt: { type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now }
   },
   { toObject: { useProjection: true } }
 )
