@@ -2,6 +2,8 @@ import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapte
 import { Paging } from './types'
 import { ObjectId } from 'mongoose'
 import { BookModel } from '~/models/database/Book'
+import { readFileSync } from 'fs'
+import { DB } from '~/constants'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -145,6 +147,8 @@ export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
   const { numberChapter, bookId } = data
 
+  const content = readFileSync(DB + chapterId + '.txt', 'utf-8')
+
   await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
 
   const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
@@ -165,5 +169,5 @@ export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter>
     nextId = next?._id.toString()
   }
 
-  return { ...data.toJSON(), previousId, nextId }
+  return { ...data.toJSON(), content, previousId, nextId }
 }
