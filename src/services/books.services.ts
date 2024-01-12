@@ -38,7 +38,7 @@ export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise
     const listSuggsetion = await BookModel.find()
       .select('_id cover chapters likes views name')
       .limit(limit)
-      .sort({ likes: -1 })
+      .sort({ views: -1 })
       .exec()
     return listSuggsetion
   } catch (error) {
