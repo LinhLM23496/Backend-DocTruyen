@@ -1,11 +1,81 @@
 import { Book, BookDocument, BookModel } from '~/models/database/Book'
+import { GetAllBook, PagingParams } from './types'
+import escapeStringRegexp from 'escape-string-regexp'
 
 type GetSuggestionsType = {
   limit: number
 }
 
-export const getBooks = async (): Promise<BookDocument[]> => {
-  return BookModel.find().exec()
+type GetAllBookPagingParams = PagingParams & {
+  filter: {
+    search: string
+    categories?: string[]
+    dir?: string
+    order?: string
+  }
+}
+
+export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams): Promise<GetAllBook> => {
+  const { search, categories, order = 'views', dir = 'desc' } = filter
+
+  const $regex = new RegExp(escapeStringRegexp(search), 'i')
+
+  const pipelineStages: any[] = [
+    {
+      $match: {
+        name: { $regex }
+      }
+    },
+    {
+      $project: {
+        _id: 1,
+        cover: 1,
+        chapters: 1,
+        likes: 1,
+        views: 1,
+        name: 1,
+        updatedAt: 1
+      }
+    }
+  ]
+
+  if (categories && categories.length > 0) {
+    pipelineStages.unshift({
+      $match: {
+        categories: { $in: categories }
+      }
+    })
+  }
+
+  pipelineStages.push({
+    $sort: {
+      [order]: dir === 'desc' ? -1 : 1,
+      likes: -1,
+      views: -1
+    }
+  })
+
+  pipelineStages.push(
+    {
+      $skip: (page - 1) * limit
+    },
+    {
+      $limit: limit
+    }
+  )
+
+  const books = await BookModel.aggregate(pipelineStages)
+
+  const total = await BookModel.countDocuments()
+  const totalPages = Math.ceil(total / limit)
+
+  const paging = {
+    page,
+    limit,
+    total,
+    totalPages
+  }
+  return { data: books, paging }
 }
 
 export const getMyBooks = async (createdBy: string): Promise<BookDocument[]> => {
@@ -38,7 +108,7 @@ export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise
     const listSuggsetion = await BookModel.find()
       .select('_id cover chapters likes views name')
       .limit(limit)
-      .sort({ views: -1 })
+      .sort({ likes: -1, views: -1 })
       .exec()
     return listSuggsetion
   } catch (error) {
