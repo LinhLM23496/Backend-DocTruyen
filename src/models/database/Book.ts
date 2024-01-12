@@ -6,7 +6,7 @@ export interface Book {
   description?: string
   cover?: string
   banner?: string
-  category?: string[]
+  categories?: string[]
   chapters?: number
   views?: number
   likes?: number
@@ -24,7 +24,7 @@ const BookSchema = new Schema<BookDocument>(
     description: { type: String },
     cover: { type: String, trim: true },
     banner: { type: String, trim: true },
-    category: { type: [String], default: ['other'] },
+    categories: { type: [String], default: ['other'] },
     chapters: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },

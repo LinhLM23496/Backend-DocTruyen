@@ -1,40 +1,25 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
-import { BookModel } from '~/models/database/Book'
 import { booksServices, chaptersServices } from '~/services'
 import { getListSuggestions } from '~/services/books.services'
 import { sendInternalServerError } from '~/utils'
-
-interface Paging {
-  page: number
-  limit: number
-  total: number
-  totalPages: number
-}
 
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
     const page = typeof req.query.page === 'string' ? parseInt(req.query.page) : PAGE
     const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit) : LIMIT
-
-    const books = await BookModel.find()
-      .skip((page - 1) * limit)
-      .select('_id cover chapters likes views name')
-      .limit(limit)
-      .exec()
-
-    const total = await BookModel.countDocuments()
-    const totalPages = Math.ceil(total / limit)
-
-    const paging: Paging = {
-      page,
-      limit,
-      total,
-      totalPages
+    const categories = Array.isArray(req.query.categories) ? (req.query.categories as string[]) : []
+    const filter = {
+      search: req.query.search?.toString() || '',
+      categories,
+      order: req.query.order?.toString(),
+      odir: req.query.odir?.toString()
     }
 
-    return res.status(HttpStatus.OK).json({ error: 0, data: books, paging, message: Messages.GET_ALL_BOOKS_SUCCESS })
+    const { data, paging } = await booksServices.getAllBook({ page, limit, filter })
+
+    return res.status(HttpStatus.OK).json({ error: 0, data, paging, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }
@@ -79,7 +64,7 @@ export const getBook = async (req: Request, res: Response) => {
 
 export const createBookDetail = async (req: Request, res: Response) => {
   try {
-    const { name, author, description, cover, banner, category } = req.body
+    const { name, author, description, cover, banner, categories } = req.body
     const { _id } = req.user as JwtPayload
 
     if (!name || !author || !cover) {
@@ -90,7 +75,7 @@ export const createBookDetail = async (req: Request, res: Response) => {
 
     if (description) data['description'] = description
     if (banner) data['banner'] = banner
-    if (category) data['category'] = category
+    if (categories) data['categories'] = categories
 
     const book = await booksServices.createBook(data)
 
@@ -107,7 +92,7 @@ export const createBookDetail = async (req: Request, res: Response) => {
 
 export const updateBookDetail = async (req: Request, res: Response) => {
   try {
-    const { bookId, name, author, description, cover, banner, category } = req.body
+    const { bookId, name, author, description, cover, banner, categories } = req.body
     const data: any = {}
 
     if (name) data['name'] = name
@@ -115,7 +100,7 @@ export const updateBookDetail = async (req: Request, res: Response) => {
     if (description) data['description'] = description
     if (cover) data['cover'] = cover
     if (banner) data['banner'] = banner
-    if (category) data['category'] = category
+    if (categories) data['categories'] = categories
 
     if (Object.keys(data).length === 0) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
