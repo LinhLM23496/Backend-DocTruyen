@@ -10,14 +10,31 @@ type GetAllBookPagingParams = PagingParams & {
   filter: {
     search: string
     categories?: string[]
-    dir?: string
+    odir?: string
     order?: string
   }
 }
 
-export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams): Promise<GetAllBook> => {
-  const { search, categories, order = 'views', dir = 'desc' } = filter
+const buildSortOptions = (order: string, odir: string) => {
+  const defaultSort = { likes: -1, views: -1 }
 
+  if (order === 'likes') {
+    return { likes: odir === 'desc' ? -1 : 1, views: odir === 'desc' ? -1 : 1 }
+  }
+
+  if (order === 'views') {
+    return { views: odir === 'desc' ? -1 : 1, likes: odir === 'desc' ? -1 : 1 }
+  }
+
+  if (order) {
+    return { [order]: odir === 'desc' ? -1 : 1, ...defaultSort }
+  }
+
+  return { likes: odir === 'desc' ? -1 : 1, views: odir === 'desc' ? -1 : 1 }
+}
+
+export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams): Promise<GetAllBook> => {
+  const { search, categories, order = '', odir = 'desc' } = filter
   const $regex = new RegExp(escapeStringRegexp(search), 'i')
 
   const pipelineStages: any[] = [
@@ -48,11 +65,7 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
   }
 
   pipelineStages.push({
-    $sort: {
-      [order]: dir === 'desc' ? -1 : 1,
-      likes: -1,
-      views: -1
-    }
+    $sort: buildSortOptions(order, odir)
   })
 
   pipelineStages.push(
