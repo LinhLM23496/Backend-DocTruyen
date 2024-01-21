@@ -3,7 +3,7 @@ import { Paging } from './types'
 import { ObjectId } from 'mongoose'
 import { BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
-import { DB } from '~/constants'
+import { DB_CHAPTER } from '~/constants'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -143,15 +143,15 @@ export const deleteMutilChaptersByBookId = async (bookId: string): Promise<void>
 export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
   if (!chapterId) throw 'error'
   const data = await ChapterModel.findByIdAndUpdate(chapterId, { $inc: { views: 1 } }, { new: true })
-  if (!data) throw 'error'
+  if (!data) throw 'error getchapterInfo service'
 
   const { numberChapter, bookId } = data
 
-  const content = readFileSync(DB + chapterId + '.txt', 'utf-8')
+  const content = readFileSync(DB_CHAPTER + chapterId + '.txt', 'utf-8')
 
   await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
 
-  const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
+  const totalChapter = await countChaptersByBookId(bookId)
   let previousId = null
   let nextId = null
 
@@ -171,3 +171,6 @@ export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
   return { ...data.toJSON(), content, previousId, nextId }
 }
+
+export const countChaptersByBookId = async (bookId: string): Promise<number> =>
+  await ChapterModel.countDocuments({ bookId })

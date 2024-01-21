@@ -30,7 +30,6 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapters, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
-    console.log('error', error)
     return sendInternalServerError(res)
   }
 }

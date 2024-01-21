@@ -4,4 +4,5 @@ export const PAGE = 1
 
 export const EXPIRED_TIMES = 1800
 
-export const DB = 'db/'
+export const DB_BOOK = 'db/books'
+export const DB_CHAPTER = 'db/chapters'
