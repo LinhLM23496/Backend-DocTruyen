@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
 import { booksServices, chaptersServices } from '~/services'
-import { getListSuggestions } from '~/services/books.services'
 import { sendInternalServerError } from '~/utils'
 
 export const getAllBooks = async (req: Request, res: Response) => {
@@ -48,9 +47,11 @@ export const getBook = async (req: Request, res: Response) => {
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
-    const chapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
+    const chapters = await chaptersServices.countChaptersByBookId(bookId)
 
-    const data = { ...book.toJSON(), ...chapterId }
+    const firstLastChapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
+
+    const data = { ...book.toJSON(), chapters, ...firstLastChapterId }
 
     return res.status(HttpStatus.OK).json({
       error: 0,
@@ -139,7 +140,7 @@ export const getSuggestions = async (req: Request, res: Response) => {
   const LIMIT_SUGGESTION = 4
   try {
     const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit) : LIMIT_SUGGESTION
-    const books = await getListSuggestions({ limit })
+    const books = await booksServices.getListSuggestions({ limit })
 
     return res.status(HttpStatus.OK).json({ error: 0, data: books, message: Messages.GET_SUGGESTION_SUCCESS })
   } catch (error) {

@@ -30,7 +30,6 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({ error: 0, data: chapters, message: Messages.GET_ALL_BOOKS_SUCCESS })
   } catch (error) {
-    console.log('error', error)
     return sendInternalServerError(res)
   }
 }
@@ -43,7 +42,7 @@ export const getChapter = async (req: Request, res: Response) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
     }
 
-    const chapter = await chaptersServices.getchapterInfo(chapterId)
+    const chapter = await chaptersServices.getChapterInfo(chapterId)
 
     if (!chapter) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.CHAPTER_NOT_EXIST })

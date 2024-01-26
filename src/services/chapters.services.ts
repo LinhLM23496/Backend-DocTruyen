@@ -3,7 +3,7 @@ import { Paging } from './types'
 import { ObjectId } from 'mongoose'
 import { BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
-import { DB } from '~/constants'
+import { DB_CHAPTER } from '~/constants'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -95,21 +95,8 @@ export const getChapterByBookIdAndNumChapter = async (id: string, numberChapter:
 }
 
 export const getFirstLastChapterIdByBookId = async (bookId: string): Promise<ChapterFirstLastId | null> => {
-  const firstChapter = await ChapterModel.findOne({ bookId, numberChapter: 1 }).select('_id').exec()
-  const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
-  const lastChapter = await ChapterModel.findOne({ bookId, numberChapter: totalChapter }).select('_id').exec()
-
-  if (!firstChapter || !lastChapter) {
-    throw 'error getFirstLastChapterIdByBookId'
-  }
-
-  return { firstChapterId: firstChapter._id?.toString(), lastChapterId: lastChapter._id?.toString() }
-}
-
-export const getPerviorNextChapterIdByBookId = async (id: string): Promise<ChapterFirstLastId | null> => {
-  const firstChapter = await ChapterModel.findOne({ bookId: id, numberChapter: 1 }).select('_id').exec()
-  const totalChapter = await ChapterModel.find({ bookId: id }).countDocuments()
-  const lastChapter = await ChapterModel.findOne({ bookId: id, numberChapter: totalChapter }).select('_id').exec()
+  const firstChapter = await ChapterModel.findOne({ bookId }).sort({ numberChapter: 1 }).select('_id').exec()
+  const lastChapter = await ChapterModel.findOne({ bookId }).sort({ numberChapter: -1 }).select('_id').exec()
 
   if (!firstChapter || !lastChapter) {
     throw 'error getFirstLastChapterIdByBookId'
@@ -140,34 +127,44 @@ export const deleteMutilChaptersByBookId = async (bookId: string): Promise<void>
   }
 }
 
-export const getchapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
-  if (!chapterId) throw 'error'
+export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
   const data = await ChapterModel.findByIdAndUpdate(chapterId, { $inc: { views: 1 } }, { new: true })
-  if (!data) throw 'error'
+  if (!data) throw 'error getchapterInfo service'
 
   const { numberChapter, bookId } = data
 
-  const content = readFileSync(DB + chapterId + '.txt', 'utf-8')
+  const content = readFileSync(DB_CHAPTER + chapterId + '.txt', 'utf-8')
 
   await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
 
-  const totalChapter = await ChapterModel.find({ bookId }).countDocuments()
+  const totalChapter = await countChaptersByBookId(bookId)
   let previousId = null
   let nextId = null
+  let i = 1
+  let j = 1
 
   if (numberChapter > 1) {
-    const previous = await ChapterModel.findOne({ bookId, numberChapter: numberChapter - 1 })
-      .select('_id')
-      .exec()
-    previousId = previous?._id.toString()
+    do {
+      const previous = await ChapterModel.findOne({ bookId, numberChapter: numberChapter - i })
+        .select('_id')
+        .exec()
+      previousId = previous?._id.toString()
+      i++
+    } while (!previousId && numberChapter - i > 0)
   }
 
   if (!!numberChapter && numberChapter < totalChapter) {
-    const next = await ChapterModel.findOne({ bookId, numberChapter: numberChapter + 1 })
-      .select('_id')
-      .exec()
-    nextId = next?._id.toString()
+    do {
+      const next = await ChapterModel.findOne({ bookId, numberChapter: numberChapter + j })
+        .select('_id')
+        .exec()
+      nextId = next?._id.toString()
+      j++
+    } while (!nextId && numberChapter + j <= totalChapter)
   }
 
   return { ...data.toJSON(), content, previousId, nextId }
 }
+
+export const countChaptersByBookId = async (bookId: string): Promise<number> =>
+  await ChapterModel.countDocuments({ bookId })
