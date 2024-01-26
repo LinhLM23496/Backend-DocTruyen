@@ -49,9 +49,9 @@ export const getBook = async (req: Request, res: Response) => {
 
     const chapters = await chaptersServices.countChaptersByBookId(bookId)
 
-    const chapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
+    const firstLastChapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
 
-    const data = { ...book.toJSON(), chapters, ...chapterId }
+    const data = { ...book.toJSON(), chapters, ...firstLastChapterId }
 
     return res.status(HttpStatus.OK).json({
       error: 0,

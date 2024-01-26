@@ -1,8 +1,10 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
-import { HttpStatus, Messages } from '~/constants'
+import moment from 'moment'
+import { HttpStatus, Messages, TWELVE_HOURS, TYPE_SUGGESTED_OF_USER } from '~/constants'
 import { UserModel } from '~/models/database/User'
-import { userTokensServices, usersServices } from '~/services'
+import { UserSuggested } from '~/models/database/UserSuggested'
+import { userSuggestedsServices, userTokensServices, usersServices } from '~/services'
 import { paginateResults, sendInternalServerError } from '~/utils'
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -73,6 +75,39 @@ export const deleteUser = async (req: Request, res: Response) => {
     await userTokensServices.deleteUserTokenByUserId(id)
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_USER_SUCCESS })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}
+
+export const createSuggestedOfUser = async (req: Request, res: Response) => {
+  try {
+    const { type, name = '', description = '', author = '', url = '' } = req.body
+    const { _id: currentUserId } = req.user as JwtPayload
+
+    if (typeof type !== 'string' || !TYPE_SUGGESTED_OF_USER.includes(type) || typeof name !== 'string' || !name)
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
+
+    const suggestedLast = await userSuggestedsServices.getSuggestedByUserId({ userId: currentUserId, type })
+
+    const waitingTime = TWELVE_HOURS - (Date.now() - Number(suggestedLast?.createdAt) || 0)
+
+    if (suggestedLast && waitingTime > 0) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        error: 1,
+        message: `Hãy chờ thêm ${moment.utc(waitingTime).format('HH:mm:ss')} để gợi ý cho chúng tôi nhé!`
+      })
+    }
+
+    const data: UserSuggested = {
+      userId: currentUserId.toString(),
+      type: type as 'book' | 'function',
+      data: [{ name, description, author, url }]
+    }
+
+    await userSuggestedsServices.createUserSuggested(data)
+
+    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.HTTP_201_CREATED })
   } catch (error) {
     return sendInternalServerError(res)
   }
