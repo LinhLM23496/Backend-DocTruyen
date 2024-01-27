@@ -107,7 +107,9 @@ export const createSuggestedOfUser = async (req: Request, res: Response) => {
 
     await userSuggestedsServices.createUserSuggested(data)
 
-    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.HTTP_201_CREATED })
+    return res
+      .status(HttpStatus.OK)
+      .json({ error: 0, message: Messages.HTTP_201_CREATED, data: Messages.CREATED_SUGGESTIONED })
   } catch (error) {
     return sendInternalServerError(res)
   }

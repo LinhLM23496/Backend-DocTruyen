@@ -38,7 +38,7 @@ export const Messages = {
   DELETE_CHAPTER_SUCCESS: 'Xóa chương thành công.',
 
   // Suggestion
-  GET_SUGGESTION_SUCCESS: 'Chúng tôi đã lưu gợi ý của bạn rồi đó! Chờ chúng tôi xử lý nhé!',
+  GET_SUGGESTION_SUCCESS: 'Get suggestion successfully.',
 
   // Error
   INVALID_EMAIL_PASSWORD: 'Sai email hoặc mật khẩu rồi bạn ơi! Ráng nhớ lại đi nào!',
@@ -52,7 +52,10 @@ export const Messages = {
   FIELD_CHAPTERID_REQUIRED: 'Chúng tôi cần chapterId đó, gửi cho chúng tôi đi bạn ơi!',
   CHAPTER_NOT_EXIST_IN_BOOK: 'Chương này lạ quá, nó không tồn tại trong cuốn truyện này đâu @_@',
   ERROR_OCCURRED_RETRY_LATER: 'Đã xảy ra lỗi. Bạn ơi! Vui lòng thử lại sau nhé ! <3',
-  INVALID_CODE: 'Mã không hợp lệ rồi @_@'
+  INVALID_CODE: 'Mã không hợp lệ rồi @_@',
+
+  // User
+  CREATED_SUGGESTIONED: 'Chúng tôi đã lưu gợi ý của bạn rồi đó! Chờ chúng tôi xử lý nhé!'
 }
 
 // Sử dụng các hằng số trong mã của bạn
