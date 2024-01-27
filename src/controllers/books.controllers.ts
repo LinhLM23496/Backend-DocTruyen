@@ -116,7 +116,9 @@ export const updateBookDetail = async (req: Request, res: Response) => {
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: 1, message: Messages.ERROR_OCCURRED_RETRY_LATER })
 
-    return res.status(HttpStatus.OK).json({ error: 0, data: updatedBook, message: Messages.UPDATE_BOOK_SUCCESS })
+    return res
+      .status(HttpStatus.OK)
+      .json({ error: 0, data: Messages.UPDATE_BOOK_SUCCESS, message: Messages.UPDATE_BOOK_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }
@@ -130,7 +132,9 @@ export const deleteBookDetail = async (req: Request, res: Response) => {
 
     await chaptersServices.deleteMutilChaptersByBookId(bookId)
 
-    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_BOOK_SUCCESS })
+    return res
+      .status(HttpStatus.OK)
+      .json({ error: 0, data: Messages.DELETE_BOOK_SUCCESS, message: Messages.DELETE_BOOK_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }
