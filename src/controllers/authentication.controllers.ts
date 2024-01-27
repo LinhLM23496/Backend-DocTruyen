@@ -41,7 +41,7 @@ export const login = async (req: Request, res: Response) => {
 
     return res.status(HttpStatus.OK).json({
       error: 0,
-      data: { token, userInfo: user },
+      data: { token, userInfo: user, message: Messages.LOGIN_SUCCESSFUL },
       message: Messages.LOGIN_SUCCESSFUL
     })
   } catch (error) {
@@ -114,7 +114,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
     await verifyCodesServices.createVerifyCode(data)
     await sendMail({ email, ...data })
 
-    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.SENDED_CODE_EMAIL })
+    return res
+      .status(HttpStatus.OK)
+      .json({ error: 0, data: Messages.SENDED_CODE_EMAIL, message: Messages.SENDED_CODE_EMAIL })
   } catch (error) {
     return sendInternalServerError(res)
   }
@@ -160,7 +162,9 @@ export const changePasswordByCode = async (req: Request, res: Response) => {
     await usersServices.updateUserById(existingUser._id, { password: hashPassword })
     await verifyCodesServices.deleteVerifyCodeById(verifyCode._id)
 
-    return res.status(HttpStatus.OK).json({ error: 0, message: Messages.UPDATE_PASSWORD_SUCCESS })
+    return res
+      .status(HttpStatus.OK)
+      .json({ error: 0, data: Messages.UPDATE_PASSWORD_SUCCESS, message: Messages.UPDATE_PASSWORD_SUCCESS })
   } catch (error) {
     return sendInternalServerError(res)
   }
