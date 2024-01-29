@@ -133,7 +133,7 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
   const { numberChapter, bookId } = data
 
-  const content = readFileSync(DB_CHAPTER + chapterId + '.txt', 'utf-8')
+  const content = readFileSync(DB_CHAPTER + bookId + '/' + chapterId + '.txt', 'utf-8')
 
   await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
 
