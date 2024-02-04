@@ -10,6 +10,8 @@ export interface Book {
   chapters?: number
   views?: number
   likes?: number
+  status: number
+  url: string
   createdBy?: string
   updatedAt?: Date
   createdAt?: Date
@@ -28,14 +30,16 @@ const BookSchema = new Schema<BookDocument>(
     chapters: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
     likes: { type: Number, default: 0 },
+    status: { type: Number, default: 0 },
+    url: { type: String, default: '' },
     createdBy: { type: String },
     updatedAt: {
       type: Date,
-      default: Date.now
+      default: new Date()
     },
     createdAt: {
       type: Date,
-      default: Date.now
+      default: new Date()
     }
   },
   { toObject: { useProjection: true } }

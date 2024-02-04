@@ -28,8 +28,8 @@ const UserSchema = new Schema<UserDocument>(
       default: 'active',
       select: false
     },
-    updatedAt: { type: Date, default: Date.now },
-    createdAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: new Date() },
+    createdAt: { type: Date, default: new Date() }
   },
   { toObject: { useProjection: true } }
 )

@@ -26,7 +26,7 @@ const VerifyCodeSchema = new Schema<VerifyCodeDocument>({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: new Date(),
     expires: 1800 // 30 minutes
   }
 })

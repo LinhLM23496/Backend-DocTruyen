@@ -28,8 +28,8 @@ const ChapterSchema = new Schema(
     likes: { type: Number, default: 0 },
     bookId: { type: String, require: true },
     createdBy: { type: String, require: true },
-    updatedAt: { type: Date, default: Date.now },
-    createdAt: { type: Date, default: Date.now }
+    updatedAt: { type: Date, default: new Date() },
+    createdAt: { type: Date, default: new Date() }
   },
   { toObject: { useProjection: true } }
 )

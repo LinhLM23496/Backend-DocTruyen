@@ -6,6 +6,7 @@ import compression from 'compression'
 import cors from 'cors'
 import router from './router'
 import dbConnect from './dbConnection'
+import triggerAction from './triggerAction'
 
 dotenv.config() //must have
 
@@ -25,5 +26,7 @@ server.listen(port, () => {
 })
 
 dbConnect()
+
+triggerAction()
 
 app.use('/api/', router())
