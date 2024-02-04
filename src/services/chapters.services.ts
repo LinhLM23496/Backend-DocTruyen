@@ -168,3 +168,11 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
 export const countChaptersByBookId = async (bookId: string): Promise<number> =>
   await ChapterModel.countDocuments({ bookId })
+
+export const createChapterByBookId = async (bookId: string, values: Omit<Chapter, '_id'>): Promise<Chapter> => {
+  const exitsChapter = await ChapterModel.findOne({ bookId, numberChapter: values.numberChapter })
+  if (exitsChapter) return exitsChapter.toObject()
+
+  const chapter = new ChapterModel(values)
+  return chapter.save().then((savedChapter) => savedChapter.toObject())
+}

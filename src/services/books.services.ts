@@ -138,7 +138,7 @@ export const createBook = async (values: Book): Promise<BookDocument> => {
   return book.save().then((savedBook) => savedBook.toObject())
 }
 
-export const updateBookById = async (id: string, values: Book): Promise<BookDocument | null> => {
+export const updateBookById = async (id: string, values: any): Promise<BookDocument | null> => {
   return BookModel.findByIdAndUpdate(id, values, { new: true }).exec()
 }
 
@@ -167,4 +167,8 @@ export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise
   } catch (error) {
     throw 'error getListSuggestions service'
   }
+}
+
+export const getBooksPending = async (): Promise<BookDocument[]> => {
+  return BookModel.find({ status: 2 }).select('_id chapters author url').exec()
 }
