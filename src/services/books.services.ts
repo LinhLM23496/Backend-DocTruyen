@@ -69,6 +69,9 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
       $sort: buildSortOptions(order, odir)
     })
 
+    // count total records without limit
+    const totalCount = await BookModel.aggregate([...pipelineStages, { $count: 'total' }])
+
     pipelineStages.push(
       {
         $skip: (page - 1) * limit
@@ -80,18 +83,8 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
 
     const books = await BookModel.aggregate(pipelineStages)
 
-    // Tạo một mảng promises để lấy số lượng chapters cho mỗi sách
-    const chapterPromises = books.map(async (book) => {
-      const chapterCount = await chaptersServices.countChaptersByBookId(book._id.toString())
-      return { ...book, chapters: chapterCount }
-    })
-
-    // Chờ cho tất cả các promises hoàn tất
-    const booksWithChapterCount = (await Promise.all(chapterPromises)) as BookDocument[]
-
-    const total = await BookModel.countDocuments()
+    const total = totalCount[0]?.total || 0
     const totalPages = Math.ceil(total / limit)
-
     const paging = {
       page,
       limit,
@@ -99,31 +92,14 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
       totalPages
     }
 
-    return { data: booksWithChapterCount, paging }
+    return { data: books, paging }
   } catch (error) {
     throw 'error getAllBook service'
   }
 }
 
-export const getMyBooks = async (createdBy: string): Promise<BookDocument[]> => {
-  try {
-    // Lấy danh sách sách của người dùng
-    const myBooks = await BookModel.find({ createdBy }).exec()
-
-    // Tạo một mảng promises để lấy số lượng chapters cho mỗi sách
-    const chapterPromises = myBooks.map(async (book) => {
-      const chapterCount = await chaptersServices.countChaptersByBookId(book._id.toString())
-      return { ...book.toObject(), chapters: chapterCount }
-    })
-
-    // Chờ cho tất cả các promises hoàn tất
-    const myBooksChaptersCount = (await Promise.all(chapterPromises)) as BookDocument[]
-
-    return myBooksChaptersCount
-  } catch (error) {
-    throw 'error getMyBooks service'
-  }
-}
+export const getMyBooks = async (createdBy: string): Promise<BookDocument[]> =>
+  await BookModel.find({ createdBy }).exec()
 
 export const getBookById = async (id: string): Promise<BookDocument | null> => {
   return BookModel.findById(id).exec()
@@ -147,26 +123,11 @@ export const deleteBookById = async (id: string): Promise<BookDocument | any> =>
 }
 
 export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise<BookDocument[]> => {
-  try {
-    const listSuggsetion = await BookModel.find()
-      .select('_id cover likes views name')
-      .limit(limit)
-      .sort({ likes: -1, views: -1 })
-      .exec()
-
-    // Tạo một mảng promises để lấy số lượng chapters cho mỗi sách
-    const chapterPromises = listSuggsetion.map(async (book) => {
-      const chapterCount = await chaptersServices.countChaptersByBookId(book._id.toString())
-      return { ...book.toObject(), chapters: chapterCount }
-    })
-
-    // Chờ cho tất cả các promises hoàn tất
-    const booksWithChapterCount = (await Promise.all(chapterPromises)) as BookDocument[]
-
-    return booksWithChapterCount
-  } catch (error) {
-    throw 'error getListSuggestions service'
-  }
+  return await BookModel.find()
+    .select('_id cover likes views name chapters')
+    .limit(limit)
+    .sort({ likes: -1, views: -1 })
+    .exec()
 }
 
 export const getBooksPending = async (): Promise<BookDocument[]> => {

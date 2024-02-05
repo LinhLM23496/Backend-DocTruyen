@@ -47,11 +47,9 @@ export const getBook = async (req: Request, res: Response) => {
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
-    const chapters = await chaptersServices.countChaptersByBookId(bookId)
-
     const firstLastChapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
 
-    const data = { ...book.toJSON(), chapters, ...firstLastChapterId }
+    const data = { ...book.toJSON(), ...firstLastChapterId }
 
     return res.status(HttpStatus.OK).json({
       error: 0,
