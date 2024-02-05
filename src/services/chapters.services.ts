@@ -135,9 +135,10 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
   const content = readFileSync(DB_CHAPTER + bookId + '/' + chapterId + '.txt', 'utf-8')
 
-  await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
+  const book = await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
+  if (!book) throw 'error getchapterInfo service'
 
-  const totalChapter = await countChaptersByBookId(bookId)
+  const totalChapter = book.chapters || 0
   let previousId = null
   let nextId = null
   let i = 1
@@ -165,9 +166,6 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
 
   return { ...data.toJSON(), content, previousId, nextId }
 }
-
-export const countChaptersByBookId = async (bookId: string): Promise<number> =>
-  await ChapterModel.countDocuments({ bookId })
 
 export const createChapterByBookId = async (bookId: string, values: Omit<Chapter, '_id'>): Promise<Chapter> => {
   const exitsChapter = await ChapterModel.findOne({ bookId, numberChapter: values.numberChapter })
