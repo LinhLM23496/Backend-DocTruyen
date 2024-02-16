@@ -48,11 +48,12 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
       {
         $project: {
           _id: 1,
+          name: 1,
           cover: 1,
           likes: 1,
           views: 1,
-          name: 1,
-          updatedAt: 1
+          updatedAt: 1,
+          chapters: 1
         }
       }
     ]
