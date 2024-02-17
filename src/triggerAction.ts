@@ -12,10 +12,10 @@ const triggerAction = () => {
   const startAgenda = async () => {
     await agenda.start()
 
-    // Đăng ký công việc lên lịch để chạy mỗi 12 tiếng
-    agenda.every('12 hours', 'updateChapterJob')
+    // Đăng ký công việc lên lịch để chạy mỗi 6 tiếng
+    agenda.every('6 hours', 'updateChapterJob')
 
-    console.log('Agenda đã bắt đầu. Công việc gọi API sẽ được chạy mỗi 12 tiếng.')
+    console.log('Agenda đã bắt đầu. Công việc gọi API sẽ được chạy mỗi 6 tiếng.')
   }
 
   startAgenda()

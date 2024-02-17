@@ -96,6 +96,9 @@ export default async function updateChapter() {
       const maxChapter = book.chapters
       const url = book.url
 
+      // log status crawl data
+      console.log('crawl book', url)
+
       const currentMaxChapter = await getMaxChapter(url)
 
       if (maxChapter && currentMaxChapter && currentMaxChapter > maxChapter) {
@@ -114,7 +117,7 @@ export default async function updateChapter() {
       }
 
       failed.length && saveFailedChapter(failed, url)
-      await booksServices.updateBookById(bookId, { chapters: currentMaxChapter })
+      await booksServices.updateBookById(bookId, { chapters: currentMaxChapter, updatedAt: new Date() })
     }
 
     console.log('update chapter finished :>> ')
