@@ -124,3 +124,17 @@ export const deleteChapterByBookId = async (req: Request, res: Response) => {
     return sendInternalServerError(res)
   }
 }
+
+export const getChapterLastUpdate = async (req: Request, res: Response) => {
+  try {
+    const { page: pageReq, limit: limitReq } = req.query
+    const page = typeof pageReq === 'string' ? parseInt(pageReq) : PAGE
+    const limit = typeof limitReq === 'string' ? parseInt(limitReq) : LIMIT
+
+    const { data, paging } = await chaptersServices.getLastUpdateChapter({ page, limit })
+
+    return res.status(HttpStatus.OK).json({ error: 0, data, paging, message: Messages.GET_LAST_UPDATE_SUCCESS })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}

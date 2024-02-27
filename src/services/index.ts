@@ -5,6 +5,7 @@ import * as userTokensServices from './userTokens.services'
 import * as userSuggestedsServices from './userSuggesteds.services'
 import * as suggestionsServices from './suggestions.services'
 import * as verifyCodesServices from './verifyCodes.services'
+import * as likesServices from './likes.services'
 
 export {
   booksServices,
@@ -13,5 +14,6 @@ export {
   userTokensServices,
   suggestionsServices,
   verifyCodesServices,
-  userSuggestedsServices
+  userSuggestedsServices,
+  likesServices
 }
