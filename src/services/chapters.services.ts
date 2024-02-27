@@ -1,7 +1,7 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
 import { Paging } from './types'
 import { ObjectId } from 'mongoose'
-import { BookModel } from '~/models/database/Book'
+import { BookDocument, BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
 import { DB_CHAPTER } from '~/constants'
 
@@ -32,6 +32,29 @@ type ChapterFirstLastId = {
 type GetDataChapter = ChapterDocument & {
   previousId?: string | null
   nextId?: string | null
+}
+
+type GetLastUpdateChapter = {
+  page: number
+  limit: number
+}
+
+type ChaptersLastUpdated = {
+  _id: ObjectId
+  name: string
+  cover: string
+  likes: number
+  views: number
+  updatedAt: Date
+  chapters: number
+  chapterId: string
+  title: string
+  numberChapter: number
+}
+
+type GetChaptersLastUpdated = {
+  data: ChaptersLastUpdated[]
+  paging: Paging
 }
 
 export const getChaptersByBookId = async ({
@@ -173,4 +196,67 @@ export const createChapterByBookId = async (bookId: string, values: Omit<Chapter
 
   const chapter = new ChapterModel(values)
   return chapter.save().then((savedChapter) => savedChapter.toObject())
+}
+
+export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter): Promise<GetChaptersLastUpdated> => {
+  const pipelineStages: any[] = [
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        cover: 1,
+        likes: 1,
+        views: 1,
+        updatedAt: 1,
+        chapters: 1
+      }
+    },
+    {
+      $sort: {
+        updatedAt: -1
+      }
+    }
+  ]
+
+  const totalCount = await BookModel.aggregate([...pipelineStages, { $count: 'total' }])
+
+  pipelineStages.push(
+    {
+      $skip: (page - 1) * limit
+    },
+    {
+      $limit: limit
+    }
+  )
+
+  const booksLastUpdated = await BookModel.aggregate(pipelineStages).exec()
+
+  const dataLastUpdated = booksLastUpdated.map(async (book: any) => {
+    let chapterLast: ChapterDocument | null = null
+    let i = -1
+    do {
+      i += 1
+      chapterLast = await ChapterModel.findOne({ bookId: book._id, numberChapter: book.chapters + i })
+    } while (!chapterLast)
+
+    return {
+      ...book,
+      chapterId: chapterLast?._id,
+      title: chapterLast?.title,
+      numberChapter: chapterLast?.numberChapter
+    }
+  })
+
+  const promiseDataLastUpdated = await Promise.all(dataLastUpdated)
+
+  const total = totalCount[0]?.total || 0
+  const totalPages = Math.ceil(total / limit)
+  const paging = {
+    page,
+    limit,
+    total,
+    totalPages
+  }
+
+  return { data: promiseDataLastUpdated, paging }
 }

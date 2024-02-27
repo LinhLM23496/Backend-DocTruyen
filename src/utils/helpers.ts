@@ -25,3 +25,8 @@ export const generateRandomNumber = () => {
 
   return randomNumber
 }
+
+export function getRandomSentence(sentences: string[]) {
+  const randomIndex = Math.floor(Math.random() * sentences.length)
+  return sentences[randomIndex]
+}

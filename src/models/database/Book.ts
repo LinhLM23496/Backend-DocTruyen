@@ -29,7 +29,7 @@ const BookSchema = new Schema<BookDocument>(
     categories: { type: [String], default: ['other'] },
     chapters: { type: Number, default: 0 },
     views: { type: Number, default: 0 },
-    likes: { type: Number, default: 0 },
+    likes: [{ type: Schema.Types.ObjectId, ref: 'Like' }],
     status: { type: Number, default: 0 },
     url: { type: String, default: '' },
     createdBy: { type: String },

@@ -4,6 +4,7 @@ import {
   deleteChapterByBookId,
   getAllChaptersByBookId,
   getChapter,
+  getChapterLastUpdate,
   updateChapterByBookId
 } from '~/controllers/chapters.controllers'
 import { isOwnerBook } from '~/middlewares/book.middlewares'
@@ -16,4 +17,5 @@ export default (router: express.Router) => {
   router.post('/chapter', isAuthenticated, isOwnerBook, isHaveNumberChapter, createChapterByBookId)
   router.put('/chapter', isAuthenticated, isOwnerChapter, updateChapterByBookId)
   router.delete('/chapter', isAuthenticated, isOwnerChapter, deleteChapterByBookId)
+  router.get('/chapters/last-update', getChapterLastUpdate)
 }

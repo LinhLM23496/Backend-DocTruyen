@@ -36,9 +36,37 @@ export const Messages = {
   CHAPTER_NOT_EXIST: 'Chương này lạ quá, nó không tồn tại trong cuốn truyện này đâu @_@',
   UPDATE_CHAPTER_SUCCESS: 'Cập nhật chương thành công.',
   DELETE_CHAPTER_SUCCESS: 'Xóa chương thành công.',
+  GET_LAST_UPDATE_SUCCESS: 'Get last update successfully.',
 
   // Suggestion
   GET_SUGGESTION_SUCCESS: 'Get suggestion successfully.',
+
+  // Likes
+  GET_ALL_LIKES_SUCCESS: 'Get all likes successfully.',
+  LIKE_SUCCESS: [
+    'Tôi biết bạn thích truyện này mà',
+    'Đúng rồi, thích thì like hoy, <3',
+    'Ngại gì mà giờ mới like vậy? <3',
+    'Wow, thích là like ngay thôi, không nghĩ nhiều đâu!',
+    'Truyện này hay lắm, mình like ngay!',
+    'Nghiện truyện này rồi, chứ thích gì nữa!',
+    'Mình thích truyện này lắm, mình like ngay! <3',
+    'Thích thì không phải suy nghĩ, chỉ cần nhấn like là xong!',
+    'Like cho truyện này để ủng hộ tác giả nào!',
+    'Thích truyện này từ lâu rồi, giờ mới có cơ hội like <3'
+  ],
+  UNLIKE_SUCCESS: [
+    'Rất tiếc, nhưng mình hiểu bạn đã thay đổi ý kiến.',
+    'Đúng rồi, không phải mọi truyện đều phù hợp với mọi người.',
+    'Không sao cả, mỗi người có một cảm nhận riêng về truyện.',
+    'Wow, không ngờ bạn lại quyết định unlike sau khi đã like.',
+    'Thật tiếc khi bạn phải unlike truyện này.',
+    'Không phải mọi truyện đều có thể giữ được sự quan tâm của mọi người.',
+    'Cảm thấy không phù hợp? Đó là lý do bạn unlike phải không?',
+    'Có lẽ không phải truyện mình thích, phải unlike thôi!',
+    'Đôi khi cần suy nghĩ kỹ trước khi like, giờ phải unlike rồi!',
+    'Sau khi đọc kỹ lại, thấy không phù hợp, unlike ngay!'
+  ],
 
   // Error
   INVALID_EMAIL_PASSWORD: 'Sai email hoặc mật khẩu rồi bạn ơi! \nRáng nhớ lại đi nào!',

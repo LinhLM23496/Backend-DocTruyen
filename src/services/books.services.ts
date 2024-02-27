@@ -1,7 +1,6 @@
 import { Book, BookDocument, BookModel } from '~/models/database/Book'
 import { GetAllBook, PagingParams } from './types'
 import escapeStringRegexp from 'escape-string-regexp'
-import { chaptersServices } from '.'
 
 type GetSuggestionsType = {
   limit: number
@@ -50,10 +49,27 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
           _id: 1,
           name: 1,
           cover: 1,
-          likes: 1,
           views: 1,
           updatedAt: 1,
           chapters: 1
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'book',
+          as: 'dataLikes'
+        }
+      },
+      {
+        $addFields: {
+          likes: { $size: '$dataLikes' } // Đếm số lượng likes
+        }
+      },
+      {
+        $project: {
+          dataLikes: 0
         }
       }
     ]
@@ -95,6 +111,7 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
 
     return { data: books, paging }
   } catch (error) {
+    console.log('error', error)
     throw 'error getAllBook service'
   }
 }
@@ -124,11 +141,47 @@ export const deleteBookById = async (id: string): Promise<BookDocument | any> =>
 }
 
 export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise<BookDocument[]> => {
-  return await BookModel.find()
-    .select('_id cover likes views name chapters')
-    .limit(limit)
-    .sort({ likes: -1, views: -1 })
-    .exec()
+  try {
+    const suggestions = await BookModel.aggregate([
+      {
+        $project: {
+          _id: 1,
+          cover: 1,
+          views: 1,
+          name: 1,
+          chapters: 1
+        }
+      },
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'book',
+          as: 'dataLikes'
+        }
+      },
+      {
+        $addFields: {
+          likes: { $size: '$dataLikes' } // Đếm số lượng likes
+        }
+      },
+      {
+        $project: {
+          dataLikes: 0
+        }
+      },
+      {
+        $sort: { likes: -1, views: -1 }
+      },
+      {
+        $limit: limit
+      }
+    ])
+
+    return suggestions
+  } catch (error) {
+    throw 'error getListSuggestions service'
+  }
 }
 
 export const getBooksPending = async (): Promise<BookDocument[]> => {

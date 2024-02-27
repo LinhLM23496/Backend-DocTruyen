@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import triggerAction from './triggerAction'
 
 const dbConnect = () => {
   const MONGO_URL = process.env.MONGO_URL ?? ''
@@ -8,6 +9,15 @@ const dbConnect = () => {
 
   mongoose.connection.on('connected', () => {
     console.log('\x1b[36m%s\x1b[0m', 'Connected to database sucessfully')
+
+    if (process.env.NODE_ENV === 'production') {
+      console.log('Server is running in production mode')
+      triggerAction()
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Server is running in development mode')
+    }
   })
 
   mongoose.connection.on('error', (err) => {
