@@ -4,6 +4,7 @@ import path from 'path'
 import fs from 'fs/promises'
 import { booksServices, chaptersServices } from '~/services'
 import { CONTENT_TO_REPLACE } from '~/constants'
+import moment from 'moment'
 
 const getMaxChapter = async (url: string) => {
   try {
@@ -90,6 +91,7 @@ export default async function updateChapter() {
     console.log('Update start')
     const bookFull = await booksServices.getBooksPending()
     for (const book of bookFull) {
+      const DATE_NOW = moment().format('DD-MM-YYYY HH:mm:ss')
       const failed: number[] = []
       const bookId = book._id.toString()
       const author = book.author
@@ -97,7 +99,7 @@ export default async function updateChapter() {
       const url = book.url
 
       // log status crawl data
-      console.log('crawl book', url)
+      console.log(DATE_NOW, 'crawl book', url)
 
       const currentMaxChapter = await getMaxChapter(url)
 
