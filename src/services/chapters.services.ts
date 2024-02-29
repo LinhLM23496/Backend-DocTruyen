@@ -231,12 +231,7 @@ export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter
   const booksLastUpdated = await BookModel.aggregate(pipelineStages).exec()
 
   const dataLastUpdated = booksLastUpdated.map(async (book: any) => {
-    let chapterLast: ChapterDocument | null = null
-    let i = -1
-    do {
-      i += 1
-      chapterLast = await ChapterModel.findOne({ bookId: book._id, numberChapter: book.chapters + i })
-    } while (!chapterLast)
+    const chapterLast = await ChapterModel.findOne({ bookId: book._id, numberChapter: book.chapters })
 
     return {
       bookId: book._id,
@@ -244,10 +239,10 @@ export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter
       nameBook: book.name,
       chapters: book.chapters,
       views: book.views,
-      chapterId: chapterLast._id,
+      chapterId: chapterLast?._id,
       nameChapter: chapterLast?.title,
       numberChapter: chapterLast?.numberChapter,
-      createdAt: chapterLast.createdAt
+      createdAt: chapterLast?.createdAt ?? book.updatedAt
     }
   })
 
