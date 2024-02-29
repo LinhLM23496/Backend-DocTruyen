@@ -1,5 +1,5 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
-import { Paging } from './types'
+import { Paging, PagingParams } from './types'
 import { ObjectId } from 'mongoose'
 import { BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
@@ -34,9 +34,8 @@ type GetDataChapter = ChapterDocument & {
   nextId?: string | null
 }
 
-type GetLastUpdateChapter = {
-  page: number
-  limit: number
+type GetLastUpdateChapter = PagingParams & {
+  filter: { categories?: string[] }
 }
 
 type ChaptersLastUpdated = {
@@ -198,7 +197,12 @@ export const createChapterByBookId = async (bookId: string, values: Omit<Chapter
   return chapter.save().then((savedChapter) => savedChapter.toObject())
 }
 
-export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter): Promise<GetChaptersLastUpdated> => {
+export const getLastUpdateChapter = async ({
+  page,
+  limit,
+  filter
+}: GetLastUpdateChapter): Promise<GetChaptersLastUpdated> => {
+  const { categories } = filter
   const pipelineStages: any[] = [
     {
       $project: {
@@ -216,6 +220,14 @@ export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter
       }
     }
   ]
+
+  if (categories && categories.length > 0) {
+    pipelineStages.unshift({
+      $match: {
+        categories: { $in: categories }
+      }
+    })
+  }
 
   const totalCount = await BookModel.aggregate([...pipelineStages, { $count: 'total' }])
 

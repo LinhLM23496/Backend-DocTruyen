@@ -149,3 +149,13 @@ export const getSuggestions = async (req: Request, res: Response) => {
     return sendInternalServerError(res)
   }
 }
+
+export const getCategoreis = async (req: Request, res: Response) => {
+  try {
+    const categories = await booksServices.getCategories()
+
+    return res.status(HttpStatus.OK).json({ error: 0, data: categories, message: Messages.HTTP_200_OK })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}
