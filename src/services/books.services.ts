@@ -51,7 +51,8 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
           cover: 1,
           views: 1,
           updatedAt: 1,
-          chapters: 1
+          chapters: 1,
+          status: 1
         }
       },
       {
@@ -149,7 +150,8 @@ export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise
           cover: 1,
           views: 1,
           name: 1,
-          chapters: 1
+          chapters: 1,
+          status: 1
         }
       },
       {
