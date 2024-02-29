@@ -130,8 +130,11 @@ export const getChapterLastUpdate = async (req: Request, res: Response) => {
     const { page: pageReq, limit: limitReq } = req.query
     const page = typeof pageReq === 'string' ? parseInt(pageReq) : PAGE
     const limit = typeof limitReq === 'string' ? parseInt(limitReq) : LIMIT
+    const filter = {
+      categories: (req.query.categories as string[]) ?? []
+    }
 
-    const { data, paging } = await chaptersServices.getLastUpdateChapter({ page, limit })
+    const { data, paging } = await chaptersServices.getLastUpdateChapter({ page, limit, filter })
 
     return res.status(HttpStatus.OK).json({ error: 0, data, paging, message: Messages.GET_LAST_UPDATE_SUCCESS })
   } catch (error) {

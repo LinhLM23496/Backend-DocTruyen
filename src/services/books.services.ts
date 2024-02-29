@@ -189,3 +189,8 @@ export const getListSuggestions = async ({ limit }: GetSuggestionsType): Promise
 export const getBooksPending = async (): Promise<BookDocument[]> => {
   return BookModel.find({ status: 2 }).select('_id chapters author url').exec()
 }
+
+export const getCategories = async (): Promise<string[]> => {
+  const categories = await BookModel.distinct('categories').exec()
+  return categories.filter((category): category is string => category !== undefined)
+}
