@@ -1,7 +1,7 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
 import { Paging } from './types'
 import { ObjectId } from 'mongoose'
-import { BookDocument, BookModel } from '~/models/database/Book'
+import { BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
 import { DB_CHAPTER } from '~/constants'
 
@@ -40,16 +40,16 @@ type GetLastUpdateChapter = {
 }
 
 type ChaptersLastUpdated = {
-  _id: ObjectId
-  name: string
-  cover: string
-  likes: number
+  bookId: ObjectId
+  nameBook?: string
+  cover?: string
   views: number
-  updatedAt: Date
   chapters: number
-  chapterId: string
-  title: string
   numberChapter: number
+  chapterId?: ObjectId
+  nameChapter?: string
+  nunberChapter?: number
+  createdAt: Date
 }
 
 type GetChaptersLastUpdated = {
@@ -205,7 +205,6 @@ export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter
         _id: 1,
         name: 1,
         cover: 1,
-        likes: 1,
         views: 1,
         updatedAt: 1,
         chapters: 1
@@ -240,14 +239,19 @@ export const getLastUpdateChapter = async ({ page, limit }: GetLastUpdateChapter
     } while (!chapterLast)
 
     return {
-      ...book,
-      chapterId: chapterLast?._id,
-      title: chapterLast?.title,
-      numberChapter: chapterLast?.numberChapter
+      bookId: book._id,
+      cover: book.cover,
+      nameBook: book.name,
+      chapters: book.chapters,
+      views: book.views,
+      chapterId: chapterLast._id,
+      nameChapter: chapterLast?.title,
+      numberChapter: chapterLast?.numberChapter,
+      createdAt: chapterLast.createdAt
     }
   })
 
-  const promiseDataLastUpdated = await Promise.all(dataLastUpdated)
+  const promiseDataLastUpdated = (await Promise.all(dataLastUpdated)) as ChaptersLastUpdated[]
 
   const total = totalCount[0]?.total || 0
   const totalPages = Math.ceil(total / limit)
