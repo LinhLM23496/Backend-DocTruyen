@@ -116,10 +116,10 @@ export default async function updateChapter() {
             newChapter?._id && (await saveContentToFile(bookId, newChapter?._id?.toString(), chapter.content))
           }
         }
-      }
 
-      failed.length && saveFailedChapter(failed, url)
-      await booksServices.updateBookById(bookId, { chapters: currentMaxChapter, updatedAt: new Date() })
+        failed.length && saveFailedChapter(failed, url)
+        await booksServices.updateBookById(bookId, { chapters: currentMaxChapter, updatedAt: new Date() })
+      }
     }
 
     console.log('update chapter finished :>> ')
