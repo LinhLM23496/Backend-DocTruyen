@@ -254,7 +254,7 @@ export const getLastUpdateChapter = async ({
       chapterId: chapterLast?._id,
       nameChapter: chapterLast?.title,
       numberChapter: chapterLast?.numberChapter,
-      createdAt: chapterLast?.createdAt ?? book.updatedAt
+      createdAt: book.updatedAt
     }
   })
 
