@@ -19,7 +19,7 @@ export const createLikebyBookId = async (bookId: string, userId: string): Promis
 }
 
 export const countLikesByBookId = async (bookId: string): Promise<number> =>
-  await LikeModel.find({ bookId }).countDocuments()
+  await LikeModel.countDocuments({ book: bookId })
 
 export const getAllLikesByUserId = async (params: GetLikesByUserId): Promise<GetAllLikesByUserId> => {
   const { page, limit, userId } = params
