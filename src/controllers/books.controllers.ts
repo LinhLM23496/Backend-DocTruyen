@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { JwtPayload } from 'jsonwebtoken'
 import { HttpStatus, LIMIT, Messages, PAGE } from '~/constants'
-import { booksServices, chaptersServices } from '~/services'
+import { booksServices, chaptersServices, likesServices } from '~/services'
 import { sendInternalServerError } from '~/utils'
 
 export const getAllBooks = async (req: Request, res: Response) => {
@@ -47,9 +47,12 @@ export const getBook = async (req: Request, res: Response) => {
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
-    const firstLastChapterId = await chaptersServices.getFirstLastChapterIdByBookId(bookId)
+    const [firstLastChapterId, likes = 0] = await Promise.all([
+      chaptersServices.getFirstLastChapterIdByBookId(bookId),
+      likesServices.countLikesByBookId(bookId)
+    ])
 
-    const data = { ...book.toJSON(), ...firstLastChapterId }
+    const data = { ...book.toJSON(), ...firstLastChapterId, likes }
 
     return res.status(HttpStatus.OK).json({
       error: 0,

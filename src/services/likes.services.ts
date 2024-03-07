@@ -27,7 +27,7 @@ export const getAllLikesByUserId = async (params: GetLikesByUserId): Promise<Get
     .limit(limit)
     .skip((page - 1) * limit)
     .sort({ createdAt: -1 }) // sort by createdAt desc
-    .populate('book', 'name cover chapters updatedAt')
+    .populate('book', 'name cover chapters status updatedAt')
 
   const total = await LikeModel.find({ userId }).countDocuments()
   const totalPages = Math.ceil(total / limit)
