@@ -36,13 +36,13 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
 
 export const getChapter = async (req: Request, res: Response) => {
   try {
-    const { chapterId } = req.query
+    const { chapterId, userId } = req.query
 
     if (!chapterId || typeof chapterId !== 'string') {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
     }
 
-    const chapter = await chaptersServices.getChapterInfo(chapterId)
+    const chapter = await chaptersServices.getChapterInfo(chapterId, userId as string)
 
     if (!chapter) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.CHAPTER_NOT_EXIST })

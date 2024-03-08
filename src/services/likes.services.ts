@@ -39,3 +39,12 @@ export const getAllLikesByUserId = async (params: GetLikesByUserId): Promise<Get
   }
   return { data, paging }
 }
+
+export const getLikebyBookIdUserId = async (bookId: string, userId: string): Promise<boolean> => {
+  try {
+    const existingLike = await LikeModel.exists({ book: bookId, user: userId })
+    return !!existingLike
+  } catch (error) {
+    return false
+  }
+}

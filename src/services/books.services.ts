@@ -194,3 +194,13 @@ export const getCategories = async (): Promise<string[]> => {
   const categories = await BookModel.distinct('categories').exec()
   return categories.filter((category): category is string => category !== undefined)
 }
+
+export const getBookAndUpdateViews = async (bookId: string): Promise<BookDocument | null> => {
+  try {
+    const book = await BookModel.findByIdAndUpdate(bookId, { $inc: { views: 1 } })
+    if (!book) return null
+    return book
+  } catch (error) {
+    return null
+  }
+}
