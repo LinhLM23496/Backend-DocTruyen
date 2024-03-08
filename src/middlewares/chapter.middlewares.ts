@@ -21,6 +21,7 @@ export const isOwnerChapter = async (req: Request, res: Response, next: NextFunc
       return res.status(HttpStatus.FORBIDDEN).send({ error: 1, message: Messages.HTTP_403_FORBIDDEN })
     }
 
+    // need fix
     const chapter = await chaptersServices.getChapterById(chapterId)
 
     if (!chapter) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.CHAPTER_NOT_EXIST })
@@ -47,6 +48,7 @@ export const isHaveNumberChapter = async (req: Request, res: Response, next: Nex
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
     }
 
+    // need fix
     const chapter = await chaptersServices.getChapterByBookIdAndNumChapter(bookId, numberChapter)
 
     if (chapter) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.CHAPTER_ALREADY_EXIST })

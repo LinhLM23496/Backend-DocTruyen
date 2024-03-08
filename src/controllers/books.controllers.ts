@@ -37,7 +37,7 @@ export const getAllMyBooks = async (req: Request, res: Response) => {
 
 export const getBook = async (req: Request, res: Response) => {
   try {
-    const { bookId } = req.query
+    const { bookId, userId } = req.query
 
     if (!bookId || typeof bookId !== 'string') {
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })
@@ -47,12 +47,13 @@ export const getBook = async (req: Request, res: Response) => {
 
     if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
 
-    const [firstLastChapterId, likes = 0] = await Promise.all([
+    const [firstLastChapterId, likes = 0, existingLike] = await Promise.all([
       chaptersServices.getFirstLastChapterIdByBookId(bookId),
-      likesServices.countLikesByBookId(bookId)
+      likesServices.countLikesByBookId(bookId),
+      userId && userId?.length && likesServices.getLikebyBookIdUserId(bookId, userId as string)
     ])
 
-    const data = { ...book.toJSON(), ...firstLastChapterId, likes }
+    const data = { ...book.toJSON(), ...firstLastChapterId, likes, ownerLike: existingLike ? 1 : 0 }
 
     return res.status(HttpStatus.OK).json({
       error: 0,

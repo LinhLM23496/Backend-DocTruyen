@@ -46,7 +46,6 @@ async function getChapter(bookData: BookData, url: string, i: number) {
         description: '',
         cover: '',
         views: 0,
-        likes: 0,
         content,
         bookId: bookData?.bookId,
         createdBy: bookData?.author,
