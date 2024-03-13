@@ -124,6 +124,11 @@ export const getBookById = async (id: string): Promise<BookDocument | null> => {
   return BookModel.findById(id).exec()
 }
 
+export const getChaptersBookById = async (id: string): Promise<number> => {
+  const book = await BookModel.findById(id).select('chapters').exec()
+  return book?.chapters || 0
+}
+
 export const getBooksByCreatedBy = async (createdById: string): Promise<BookDocument[]> => {
   return BookModel.find({ createdBy: createdById }).exec()
 }

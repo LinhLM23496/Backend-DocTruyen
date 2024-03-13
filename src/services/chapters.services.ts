@@ -33,7 +33,6 @@ type ChapterFirstLastId = {
 type GetDataChapter = ChapterDocument & {
   previousId?: string | null
   nextId?: string | null
-  likes: number
   existingLike?: number
 }
 
@@ -199,27 +198,19 @@ const getNextIdChapter = async (
   return nextId
 }
 
-export const getChapterInfo = async (chapterId: string, userId: string): Promise<GetDataChapter> => {
+export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
   const data = await ChapterModel.findByIdAndUpdate(chapterId, { $inc: { views: 1 } }, { new: true })
   if (!data) throw 'error getchapterInfo service'
 
   const { numberChapter, bookId } = data
-  const [book, likes = 0] = await Promise.all([
-    booksServices.getBookById(bookId),
-    likesServices.countLikesByBookId(bookId)
-  ])
-  if (!book) throw 'error getchapterInfo service'
-
-  const totalChapter = book.chapters || 0
-
-  const [content, previousId, nextId, existingLike] = await Promise.all([
+  const chapters = await booksServices.getChaptersBookById(bookId)
+  const [content, previousId, nextId] = await Promise.all([
     getContent(bookId, chapterId),
     getPreviousIdChapter(bookId, numberChapter),
-    getNextIdChapter(bookId, numberChapter, totalChapter),
-    userId && userId?.length && likesServices.getLikebyBookIdUserId(bookId, userId)
+    getNextIdChapter(bookId, numberChapter, chapters)
   ])
 
-  return { ...data.toJSON(), content, previousId, nextId, likes, existingLike: existingLike ? 1 : 0 }
+  return { ...data.toJSON(), content, previousId, nextId }
 }
 
 export const createChapterByBookId = async (bookId: string, values: Omit<Chapter, '_id'>): Promise<Chapter> => {

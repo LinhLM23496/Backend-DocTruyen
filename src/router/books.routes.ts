@@ -16,7 +16,7 @@ export default (router: express.Router) => {
   router.get('/books', getAllBooks)
   router.get('/books/suggestion', getSuggestions)
   router.get('/my-books', isAuthenticated, getAllMyBooks)
-  router.get('/book', getBook)
+  router.get('/book/:id', getBook)
   router.post('/book', isAuthenticated, roleCheck(['user']), createBookDetail)
   router.put('/book', isAuthenticated, isOwnerBook, updateBookDetail)
   router.delete('/book', isAuthenticated, isOwnerBook, deleteBookDetail)

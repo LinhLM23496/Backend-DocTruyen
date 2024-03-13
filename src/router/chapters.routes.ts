@@ -13,7 +13,7 @@ import { isAuthenticated } from '~/middlewares/user.middlewares'
 
 export default (router: express.Router) => {
   router.get('/chapters', getAllChaptersByBookId)
-  router.get('/chapter', getChapter)
+  router.get('/chapter/:id', getChapter)
   router.post('/chapter', isAuthenticated, isOwnerBook, isHaveNumberChapter, createChapterByBookId)
   router.put('/chapter', isAuthenticated, isOwnerChapter, updateChapterByBookId)
   router.delete('/chapter', isAuthenticated, isOwnerChapter, deleteChapterByBookId)
