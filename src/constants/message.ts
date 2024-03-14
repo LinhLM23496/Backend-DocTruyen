@@ -83,7 +83,13 @@ export const Messages = {
   INVALID_CODE: 'Mã không hợp lệ rồi @_@',
 
   // User
-  CREATED_SUGGESTIONED: 'Chúng tôi đã lưu gợi ý của bạn rồi đó! \nChờ chúng tôi xử lý nhé!'
+  CREATED_SUGGESTIONED: 'Chúng tôi đã lưu gợi ý của bạn rồi đó! \nChờ chúng tôi xử lý nhé!',
+
+  // Notification
+  PUT_NOTIFICATION_SUCCESS: 'Put notification successfully.',
+  PUT_NOTIFICATION_FAILED: 'Put notification failed.',
+  READ_NOTIFICATION_SUCCESS: 'Read notification successfully.',
+  READ_ALL_NOTIFICATIONS_SUCCESS: 'Read all notifications successfully.'
 }
 
 // Sử dụng các hằng số trong mã của bạn

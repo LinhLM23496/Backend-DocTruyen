@@ -87,19 +87,18 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
       $sort: buildSortOptions(order, odir)
     })
 
-    // count total records without limit
-    const totalCount = await BookModel.aggregate([...pipelineStages, { $count: 'total' }])
-
-    pipelineStages.push(
-      {
-        $skip: (page - 1) * limit
-      },
-      {
-        $limit: limit
-      }
-    )
-
-    const books = await BookModel.aggregate(pipelineStages)
+    const [books, totalCount] = await Promise.all([
+      BookModel.aggregate([
+        ...pipelineStages,
+        {
+          $skip: (page - 1) * limit
+        },
+        {
+          $limit: limit
+        }
+      ]),
+      BookModel.aggregate([...pipelineStages, { $count: 'total' }])
+    ])
 
     const total = totalCount[0]?.total || 0
     const totalPages = Math.ceil(total / limit)

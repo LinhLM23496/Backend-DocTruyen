@@ -6,6 +6,7 @@ import booksRoutes from './books.routes'
 import chaptersRoutes from './chapters.routes'
 import likesRoutes from './likes.routes'
 import whiteListRoutes from './whiteList.routes'
+import notificationRoutes from './notification.routes'
 
 const router = express.Router()
 
@@ -17,6 +18,7 @@ export default (): express.Router => {
   booksRoutes(router)
   chaptersRoutes(router)
   likesRoutes(router)
+  notificationRoutes(router)
 
   return router
 }

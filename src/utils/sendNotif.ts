@@ -1,3 +1,4 @@
+import { getMessaging } from 'firebase-admin/messaging'
 import nodemailer from 'nodemailer'
 import { TypeVerifyCode } from '~/models/database/VerifyCode'
 
@@ -47,5 +48,28 @@ export const sendMail = async ({ email, code, type }: SendMailType) => {
   } catch (error) {
     console.log('error', error)
     return Promise.reject('Sended mail fail')
+  }
+}
+
+type NotifType = {
+  title: string
+  body: string
+}
+
+type DataType = {
+  [key: string]: any
+}
+
+export const sendNotification = async (fcmToken: string, notif: NotifType, data?: DataType): Promise<boolean> => {
+  try {
+    const message = {
+      token: fcmToken,
+      notification: notif,
+      data
+    }
+    await getMessaging().send(message)
+    return true
+  } catch (error) {
+    return false
   }
 }

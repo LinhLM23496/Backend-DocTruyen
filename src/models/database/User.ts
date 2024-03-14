@@ -8,6 +8,7 @@ export interface User {
   status: 'active' | 'block'
   updatedAt?: Date
   createdAt?: Date
+  fcmToken?: string
 }
 
 export interface UserDocument extends User, Document {}
@@ -29,7 +30,8 @@ const UserSchema = new Schema<UserDocument>(
       select: false
     },
     updatedAt: { type: Date, default: new Date() },
-    createdAt: { type: Date, default: new Date() }
+    createdAt: { type: Date, default: new Date() },
+    fcmToken: { type: String }
   },
   { toObject: { useProjection: true } }
 )

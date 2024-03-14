@@ -6,8 +6,17 @@ import compression from 'compression'
 import cors from 'cors'
 import router from './router'
 import dbConnect from './dbConnection'
+import { applicationDefault, initializeApp, refreshToken } from 'firebase-admin/app'
 
 dotenv.config() //must have
+
+process.env.GOOGLE_APPLICATION_CREDENTIALS
+
+// config firebase notification
+initializeApp({
+  credential: applicationDefault(),
+  projectId: process.env.PROJECT_ID
+})
 
 const app = express()
 const port = process.env.PORT ?? 3000
