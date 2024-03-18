@@ -87,19 +87,18 @@ export const getAllBook = async ({ page, limit, filter }: GetAllBookPagingParams
       $sort: buildSortOptions(order, odir)
     })
 
-    // count total records without limit
-    const totalCount = await BookModel.aggregate([...pipelineStages, { $count: 'total' }])
-
-    pipelineStages.push(
-      {
-        $skip: (page - 1) * limit
-      },
-      {
-        $limit: limit
-      }
-    )
-
-    const books = await BookModel.aggregate(pipelineStages)
+    const [books, totalCount] = await Promise.all([
+      BookModel.aggregate([
+        ...pipelineStages,
+        {
+          $skip: (page - 1) * limit
+        },
+        {
+          $limit: limit
+        }
+      ]),
+      BookModel.aggregate([...pipelineStages, { $count: 'total' }])
+    ])
 
     const total = totalCount[0]?.total || 0
     const totalPages = Math.ceil(total / limit)
@@ -124,6 +123,11 @@ export const getBookById = async (id: string): Promise<BookDocument | null> => {
   return BookModel.findById(id).exec()
 }
 
+export const getChaptersBookById = async (id: string): Promise<number> => {
+  const book = await BookModel.findById(id).select('chapters').exec()
+  return book?.chapters || 0
+}
+
 export const getBooksByCreatedBy = async (createdById: string): Promise<BookDocument[]> => {
   return BookModel.find({ createdBy: createdById }).exec()
 }
@@ -134,7 +138,7 @@ export const createBook = async (values: Book): Promise<BookDocument> => {
 }
 
 export const updateBookById = async (id: string, values: any): Promise<BookDocument | null> => {
-  return BookModel.findByIdAndUpdate(id, values, { new: true }).exec()
+  return BookModel.findByIdAndUpdate(id, { ...values, updatedAt: new Date() }, { new: true }).exec()
 }
 
 export const deleteBookById = async (id: string): Promise<BookDocument | any> => {

@@ -37,7 +37,8 @@ export const getAllMyBooks = async (req: Request, res: Response) => {
 
 export const getBook = async (req: Request, res: Response) => {
   try {
-    const { bookId, userId } = req.query
+    const { userId } = req.query
+    const { id: bookId } = req.params
 
     if (!bookId || typeof bookId !== 'string') {
       return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })

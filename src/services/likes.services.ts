@@ -13,7 +13,7 @@ export const createLikebyBookId = async (bookId: string, userId: string): Promis
     await LikeModel.deleteOne({ _id: exitsLike._id })
     return 0
   } else {
-    await LikeModel.create({ book: bookId, user: userId })
+    await LikeModel.create({ book: bookId, user: userId, createdAt: new Date() })
     return 1
   }
 }
@@ -23,13 +23,14 @@ export const countLikesByBookId = async (bookId: string): Promise<number> =>
 
 export const getAllLikesByUserId = async (params: GetLikesByUserId): Promise<GetAllLikesByUserId> => {
   const { page, limit, userId } = params
-  const data: DataLike[] = await LikeModel.find({ user: userId })
-    .limit(limit)
-    .skip((page - 1) * limit)
-    .sort({ createdAt: -1 }) // sort by createdAt desc
-    .populate('book', 'name cover chapters status updatedAt')
-
-  const total = await LikeModel.find({ userId }).countDocuments()
+  const [data, total] = await Promise.all([
+    LikeModel.find({ user: userId })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort({ createdAt: -1 }) // sort by createdAt desc
+      .populate('book', 'name cover chapters status updatedAt'),
+    LikeModel.find({ user: userId }).countDocuments()
+  ])
   const totalPages = Math.ceil(total / limit)
   const paging = {
     page,
@@ -37,7 +38,7 @@ export const getAllLikesByUserId = async (params: GetLikesByUserId): Promise<Get
     total,
     totalPages
   }
-  return { data, paging }
+  return { data: data as DataLike[], paging }
 }
 
 export const getLikebyBookIdUserId = async (bookId: string, userId: string): Promise<boolean> => {

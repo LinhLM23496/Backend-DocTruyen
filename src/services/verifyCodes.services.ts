@@ -8,7 +8,7 @@ export type GetVerifyCodeParams = {
 }
 
 export const createVerifyCode = async (params: GetVerifyCodeParams): Promise<VerifyCodeDocument> => {
-  const verifyCode = new VerifyCodeModel(params)
+  const verifyCode = new VerifyCodeModel({ ...params, createdAt: new Date() })
   return verifyCode.save().then((savedVerifyCode) => savedVerifyCode.toObject())
 }
 

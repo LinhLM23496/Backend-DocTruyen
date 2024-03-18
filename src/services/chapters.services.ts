@@ -1,10 +1,10 @@
 import { Chapter, ChapterDocument, ChapterModel } from '~/models/database/Chapter'
 import { Paging, PagingParams } from './types'
 import { ObjectId } from 'mongoose'
-import { BookDocument, BookModel } from '~/models/database/Book'
+import { BookModel } from '~/models/database/Book'
 import { readFileSync } from 'fs'
 import { DB_CHAPTER } from '~/constants'
-import { booksServices, likesServices } from '.'
+import { booksServices } from '.'
 
 type GetChaptersByBookIdType = {
   bookId: string
@@ -33,7 +33,6 @@ type ChapterFirstLastId = {
 type GetDataChapter = ChapterDocument & {
   previousId?: string | null
   nextId?: string | null
-  likes: number
   existingLike?: number
 }
 
@@ -65,31 +64,33 @@ export const getChaptersByBookId = async ({
   limit,
   odir
 }: GetChaptersByBookIdType): Promise<GetAllChapter> => {
-  const data = await ChapterModel.aggregate([
-    {
-      $match: { bookId }
-    },
-    {
-      $project: {
-        _id: 1,
-        title: 1,
-        numberChapter: 1
+  const [data, total] = await Promise.all([
+    ChapterModel.aggregate([
+      {
+        $match: { bookId }
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          numberChapter: 1
+        }
+      },
+      {
+        $sort: {
+          numberChapter: 1
+        }
+      },
+      {
+        $skip: (page - 1) * limit
+      },
+      {
+        $limit: limit
       }
-    },
-    {
-      $sort: {
-        numberChapter: 1
-      }
-    },
-    {
-      $skip: (page - 1) * limit
-    },
-    {
-      $limit: limit
-    }
+    ]),
+    ChapterModel.find({ bookId }).countDocuments()
   ])
 
-  const total = await ChapterModel.find({ bookId }).countDocuments()
   const totalPages = Math.ceil(total / limit)
 
   const paging: Paging = {
@@ -133,7 +134,7 @@ export const createChapter = async (values: Chapter): Promise<ChapterDocument> =
 }
 
 export const updateChapterById = async (id: string, values: Chapter): Promise<ChapterDocument | null> => {
-  return ChapterModel.findByIdAndUpdate(id, values, { new: true })
+  return ChapterModel.findByIdAndUpdate(id, { ...values, updatedAt: new Date() }, { new: true })
 }
 
 export const deleteChapterById = async (id: string): Promise<ChapterDocument | any> => {
@@ -199,27 +200,19 @@ const getNextIdChapter = async (
   return nextId
 }
 
-export const getChapterInfo = async (chapterId: string, userId: string): Promise<GetDataChapter> => {
+export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter> => {
   const data = await ChapterModel.findByIdAndUpdate(chapterId, { $inc: { views: 1 } }, { new: true })
   if (!data) throw 'error getchapterInfo service'
 
   const { numberChapter, bookId } = data
-  const [book, likes = 0] = await Promise.all([
-    booksServices.getBookById(bookId),
-    likesServices.countLikesByBookId(bookId)
-  ])
-  if (!book) throw 'error getchapterInfo service'
-
-  const totalChapter = book.chapters || 0
-
-  const [content, previousId, nextId, existingLike] = await Promise.all([
+  const chapters = await booksServices.getChaptersBookById(bookId)
+  const [content, previousId, nextId] = await Promise.all([
     getContent(bookId, chapterId),
     getPreviousIdChapter(bookId, numberChapter),
-    getNextIdChapter(bookId, numberChapter, totalChapter),
-    userId && userId?.length && likesServices.getLikebyBookIdUserId(bookId, userId)
+    getNextIdChapter(bookId, numberChapter, chapters)
   ])
 
-  return { ...data.toJSON(), content, previousId, nextId, likes, existingLike: existingLike ? 1 : 0 }
+  return { ...data.toJSON(), content, previousId, nextId }
 }
 
 export const createChapterByBookId = async (bookId: string, values: Omit<Chapter, '_id'>): Promise<Chapter> => {

@@ -22,19 +22,14 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const getUserInfo = async (req: Request, res: Response) => {
   try {
-    const { id } = req.query
+    let userId = req.query?.id
 
-    if (!id || typeof id !== 'string') {
-      const { _id: currentUserId } = req.user as JwtPayload
-
-      const user = await usersServices.getUserById(currentUserId)
-
-      if (!user) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.USER_NOT_EXIST })
-
-      return res.status(HttpStatus.OK).json({ error: 0, data: user, message: Messages.GET_USER_INFO_SUCCESS })
+    if (!userId?.length || typeof userId !== 'string') {
+      const { _id } = req.user as JwtPayload
+      userId = _id as string
     }
 
-    const user = await usersServices.getUserById(id)
+    const user = await usersServices.getUserById(userId)
 
     if (!user) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.USER_NOT_EXIST })
 
@@ -51,7 +46,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     if (!id || typeof id !== 'string' || !username || typeof username !== 'string')
       return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
 
-    const user = await usersServices.updateUserById(id, { username })
+    const user = await usersServices.updateUserById(id, { username, updatedAt: new Date() })
 
     if (!user) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.USER_NOT_EXIST })
 
@@ -68,11 +63,12 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!id || typeof id !== 'string')
       return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.FIELD_ID_REQUIRED })
 
-    const userBlocked = await usersServices.blockUserById(id)
+    const [userBlocked, _] = await Promise.all([
+      usersServices.blockUserById(id),
+      userTokensServices.deleteUserTokenByUserId(id)
+    ])
 
     if (!userBlocked) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.USER_NOT_EXIST })
-
-    await userTokensServices.deleteUserTokenByUserId(id)
 
     return res.status(HttpStatus.OK).json({ error: 0, message: Messages.DELETE_USER_SUCCESS })
   } catch (error) {

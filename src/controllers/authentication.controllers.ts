@@ -15,7 +15,7 @@ import { GetVerifyCodeParams } from '~/services/verifyCodes.services'
 
 export const login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body
+    const { email, password, fcmToken } = req.body
 
     if (!email || typeof email !== 'string' || !password) {
       return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
@@ -37,11 +37,23 @@ export const login = async (req: Request, res: Response) => {
       return res.status(HttpStatus.UNAUTHORIZED).json({ error: 1, message: Messages.INVALID_EMAIL_PASSWORD })
     }
 
-    const token = await generateTokens(user)
+    const [token, _] = await Promise.all([
+      generateTokens(user),
+      fcmToken && fcmToken?.length > 0 && usersServices.updateUserById(user._id, { fcmToken })
+    ])
+
+    const data = {
+      _id: user._id,
+      email: user.email,
+      displayName: user.displayName,
+      roles: user.roles,
+      updatedAt: user.updatedAt,
+      createdAt: user.createdAt
+    }
 
     return res.status(HttpStatus.OK).json({
       error: 0,
-      data: { token, userInfo: user, message: Messages.LOGIN_SUCCESSFUL },
+      data: { token, userInfo: data, message: Messages.LOGIN_SUCCESSFUL },
       message: Messages.LOGIN_SUCCESSFUL
     })
   } catch (error) {
@@ -72,7 +84,9 @@ export const register = async (req: Request, res: Response) => {
     const user = await usersServices.createUser({
       email,
       displayName,
-      password: hashPassword
+      password: hashPassword,
+      updatedAt: new Date(),
+      createdAt: new Date()
     })
 
     return res.status(HttpStatus.CREATED).json({ error: 0, data: user, message: Messages.HTTP_201_CREATED })
@@ -111,8 +125,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
       type: 'forgotPassword'
     }
 
-    await verifyCodesServices.createVerifyCode(data)
-    await sendMail({ email, ...data })
+    await Promise.all([verifyCodesServices.createVerifyCode(data), sendMail({ email, ...data })])
 
     return res
       .status(HttpStatus.OK)
@@ -159,8 +172,10 @@ export const changePasswordByCode = async (req: Request, res: Response) => {
 
     const hashPassword = await generateHashPassword(password)
 
-    await usersServices.updateUserById(existingUser._id, { password: hashPassword })
-    await verifyCodesServices.deleteVerifyCodeById(verifyCode._id)
+    await Promise.all([
+      usersServices.updateUserById(existingUser._id, { password: hashPassword, updatedAt: new Date() }),
+      verifyCodesServices.deleteVerifyCodeById(verifyCode._id)
+    ])
 
     return res
       .status(HttpStatus.OK)

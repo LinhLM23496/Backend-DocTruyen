@@ -1,3 +1,4 @@
+import { getMessaging } from 'firebase-admin/messaging'
 import nodemailer from 'nodemailer'
 import { TypeVerifyCode } from '~/models/database/VerifyCode'
 
@@ -47,5 +48,54 @@ export const sendMail = async ({ email, code, type }: SendMailType) => {
   } catch (error) {
     console.log('error', error)
     return Promise.reject('Sended mail fail')
+  }
+}
+
+type NotifType = {
+  title: string
+  body: string
+}
+
+type DataType = {
+  [key: string]: any
+}
+
+export const sendNotification = async (
+  fcmToken: string,
+  notif: NotifType,
+  data?: DataType,
+  imageUrl?: string
+): Promise<string> => {
+  try {
+    const messageImage = {
+      android: {
+        notification: { imageUrl }
+      },
+      apns: {
+        payload: { aps: { 'mutable-content': 1 } },
+        fcm_options: { image: imageUrl }
+      },
+      webpush: {
+        headers: { image: imageUrl }
+      }
+    }
+    const message: any = {
+      token: fcmToken,
+      notification: notif,
+      data
+    }
+
+    if (imageUrl) {
+      message['webpush'] = messageImage.webpush
+      message['apns'] = messageImage.apns
+      message['android'] = messageImage.android
+    }
+
+    const res = await getMessaging().send(message)
+    const messageId = res.split('/').slice(-1)[0]
+
+    return messageId
+  } catch (error) {
+    return ''
   }
 }
