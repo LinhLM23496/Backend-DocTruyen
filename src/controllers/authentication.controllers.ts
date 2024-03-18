@@ -84,7 +84,9 @@ export const register = async (req: Request, res: Response) => {
     const user = await usersServices.createUser({
       email,
       displayName,
-      password: hashPassword
+      password: hashPassword,
+      updatedAt: new Date(),
+      createdAt: new Date()
     })
 
     return res.status(HttpStatus.CREATED).json({ error: 0, data: user, message: Messages.HTTP_201_CREATED })
@@ -171,7 +173,7 @@ export const changePasswordByCode = async (req: Request, res: Response) => {
     const hashPassword = await generateHashPassword(password)
 
     await Promise.all([
-      usersServices.updateUserById(existingUser._id, { password: hashPassword }),
+      usersServices.updateUserById(existingUser._id, { password: hashPassword, updatedAt: new Date() }),
       verifyCodesServices.deleteVerifyCodeById(verifyCode._id)
     ])
 

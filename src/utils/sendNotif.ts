@@ -60,16 +60,42 @@ type DataType = {
   [key: string]: any
 }
 
-export const sendNotification = async (fcmToken: string, notif: NotifType, data?: DataType): Promise<boolean> => {
+export const sendNotification = async (
+  fcmToken: string,
+  notif: NotifType,
+  data?: DataType,
+  imageUrl?: string
+): Promise<string> => {
   try {
-    const message = {
+    const messageImage = {
+      android: {
+        notification: { imageUrl }
+      },
+      apns: {
+        payload: { aps: { 'mutable-content': 1 } },
+        fcm_options: { image: imageUrl }
+      },
+      webpush: {
+        headers: { image: imageUrl }
+      }
+    }
+    const message: any = {
       token: fcmToken,
       notification: notif,
       data
     }
-    await getMessaging().send(message)
-    return true
+
+    if (imageUrl) {
+      message['webpush'] = messageImage.webpush
+      message['apns'] = messageImage.apns
+      message['android'] = messageImage.android
+    }
+
+    const res = await getMessaging().send(message)
+    const messageId = res.split('/').slice(-1)[0]
+
+    return messageId
   } catch (error) {
-    return false
+    return ''
   }
 }

@@ -138,7 +138,7 @@ export const createBook = async (values: Book): Promise<BookDocument> => {
 }
 
 export const updateBookById = async (id: string, values: any): Promise<BookDocument | null> => {
-  return BookModel.findByIdAndUpdate(id, values, { new: true }).exec()
+  return BookModel.findByIdAndUpdate(id, { ...values, updatedAt: new Date() }, { new: true }).exec()
 }
 
 export const deleteBookById = async (id: string): Promise<BookDocument | any> => {

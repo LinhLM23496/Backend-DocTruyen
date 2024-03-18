@@ -6,7 +6,7 @@ import compression from 'compression'
 import cors from 'cors'
 import router from './router'
 import dbConnect from './dbConnection'
-import { applicationDefault, initializeApp, refreshToken } from 'firebase-admin/app'
+import { applicationDefault, initializeApp } from 'firebase-admin/app'
 
 dotenv.config() //must have
 

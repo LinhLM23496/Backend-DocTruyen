@@ -46,7 +46,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     if (!id || typeof id !== 'string' || !username || typeof username !== 'string')
       return res.status(HttpStatus.FORBIDDEN).json({ error: 1, message: Messages.ALL_FIELDS_REQUIRED })
 
-    const user = await usersServices.updateUserById(id, { username })
+    const user = await usersServices.updateUserById(id, { username, updatedAt: new Date() })
 
     if (!user) return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.USER_NOT_EXIST })
 

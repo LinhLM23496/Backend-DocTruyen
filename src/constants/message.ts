@@ -89,7 +89,8 @@ export const Messages = {
   PUT_NOTIFICATION_SUCCESS: 'Put notification successfully.',
   PUT_NOTIFICATION_FAILED: 'Put notification failed.',
   READ_NOTIFICATION_SUCCESS: 'Read notification successfully.',
-  READ_ALL_NOTIFICATIONS_SUCCESS: 'Read all notifications successfully.'
+  READ_ALL_NOTIFICATIONS_SUCCESS: 'Read all notifications successfully.',
+  NOTIFICATION_NOT_EXIST: 'Notification not exist.'
 }
 
 // Sử dụng các hằng số trong mã của bạn

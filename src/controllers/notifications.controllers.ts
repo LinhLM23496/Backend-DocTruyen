@@ -34,6 +34,27 @@ export const readNotification = async (req: Request, res: Response) => {
   }
 }
 
+export const readNotifByMessageId = async (req: Request, res: Response) => {
+  try {
+    const { messageId } = req.body
+    console.log('messageId', messageId)
+
+    if (!messageId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.FIELD_ID_REQUIRED })
+    }
+
+    const message = await notificationServices.updateReadNotifByMessageId(messageId)
+
+    if (!message) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.NOTIFICATION_NOT_EXIST })
+    }
+
+    res.status(HttpStatus.OK).json({ message: Messages.READ_NOTIFICATION_SUCCESS })
+  } catch (error) {
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: Messages.HTTP_500_INTERNAL_SERVER_ERROR })
+  }
+}
+
 export const readAllNotifications = async (req: Request, res: Response) => {
   try {
     const { _id } = req.user as JwtPayload
@@ -59,23 +80,41 @@ export const countUnReadNotifications = async (req: Request, res: Response) => {
 
 export const putNotification = async (req: Request, res: Response) => {
   try {
-    const { userId, title, body, data } = req.body
+    const { userId, title, body, route: Route, param: Param } = req.body
     const { _id } = req.user as JwtPayload
 
     if (!userId || !title || !body) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.ALL_FIELDS_REQUIRED })
     }
 
-    const [user, _] = await Promise.all([
-      usersServices.getUserById(userId),
-      notificationServices.createNotifbyUserId({ user: userId, createdBy: _id, title, body, data })
-    ])
+    const user = await usersServices.getUserById(userId)
 
     if (!user || !user?.fcmToken) {
       return res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.PUT_NOTIFICATION_FAILED })
     }
 
-    await sendNotification(user?.fcmToken, { title, body }, data)
+    const data = {
+      Route,
+      Param: JSON.stringify(Param)
+    }
+
+    const messageId = await sendNotification(user?.fcmToken, { title, body }, data)
+
+    if (!messageId) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ message: Messages.PUT_NOTIFICATION_FAILED })
+    }
+
+    const dataNotif = {
+      messageId,
+      user: userId,
+      createdBy: _id,
+      title,
+      body,
+      data: { Route, Param },
+      createdAt: new Date()
+    }
+
+    await notificationServices.createNotifbyUserId(dataNotif)
 
     res.status(HttpStatus.OK).json({ message: Messages.PUT_NOTIFICATION_SUCCESS })
   } catch (error) {

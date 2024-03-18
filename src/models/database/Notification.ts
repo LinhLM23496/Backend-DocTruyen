@@ -1,6 +1,7 @@
 import { Document, ObjectId, Schema, model } from 'mongoose'
 
 export interface Notification {
+  messageId: string
   user: Schema.Types.ObjectId
   createdBy: Schema.Types.ObjectId
   title: string
@@ -14,6 +15,7 @@ export interface Notification {
 export interface NotificationDocument extends Notification, Document {}
 
 const NotificationSchema = new Schema<NotificationDocument>({
+  messageId: { type: String, required: true },
   user: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
   title: { type: String, required: true },
   body: { type: String, required: true },

@@ -1,7 +1,7 @@
 import { UserToken, UserTokenDocument, UserTokenModel } from '~/models/database/UserToken'
 
 export const createUserToken = async (values: UserToken): Promise<UserTokenDocument> => {
-  const userToken = new UserTokenModel(values)
+  const userToken = new UserTokenModel({ ...values, createdAt: new Date() })
   return userToken.save().then((savedUserToken) => savedUserToken.toObject())
 }
 

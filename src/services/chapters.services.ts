@@ -134,7 +134,7 @@ export const createChapter = async (values: Chapter): Promise<ChapterDocument> =
 }
 
 export const updateChapterById = async (id: string, values: Chapter): Promise<ChapterDocument | null> => {
-  return ChapterModel.findByIdAndUpdate(id, values, { new: true })
+  return ChapterModel.findByIdAndUpdate(id, { ...values, updatedAt: new Date() }, { new: true })
 }
 
 export const deleteChapterById = async (id: string): Promise<ChapterDocument | any> => {

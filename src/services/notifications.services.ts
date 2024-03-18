@@ -1,4 +1,3 @@
-import { LikeModel } from '~/models/database/Like'
 import { Paging, PagingParams } from './types'
 import { NotificationDocument, NotificationModel } from '~/models/database/Notification'
 
@@ -12,6 +11,7 @@ export type GetAllNotifByUserId = {
 }
 
 type NotificationData = {
+  messageId: string
   user: string
   createdBy: string
   title: string
@@ -24,7 +24,7 @@ export const createNotifbyUserId = async (data: NotificationData): Promise<Notif
 }
 
 export const countUnReadNotifByUserId = async (userId: string): Promise<number> =>
-  await LikeModel.countDocuments({ user: userId, isRead: true })
+  await NotificationModel.countDocuments({ user: userId, isRead: false })
 
 export const getAllNotifByUserId = async (params: GetLikesByUserId): Promise<GetAllNotifByUserId> => {
   const { page, limit, userId } = params
@@ -33,8 +33,9 @@ export const getAllNotifByUserId = async (params: GetLikesByUserId): Promise<Get
       .limit(limit)
       .skip((page - 1) * limit)
       .sort({ createdAt: -1 }),
-    NotificationModel.find({ userId }).countDocuments()
+    NotificationModel.find({ user: userId }).countDocuments()
   ])
+
   const totalPages = Math.ceil(total / limit)
   const paging = {
     page,
@@ -46,7 +47,10 @@ export const getAllNotifByUserId = async (params: GetLikesByUserId): Promise<Get
 }
 
 export const updateReadNotifById = async (_id: string) =>
-  await NotificationModel.findByIdAndUpdate(_id, { isRead: true })
+  await NotificationModel.findByIdAndUpdate(_id, { isRead: true, updatedAt: new Date() })
+
+export const updateReadNotifByMessageId = async (messageId: string) =>
+  await NotificationModel.findOneAndUpdate({ messageId }, { isRead: true, updatedAt: new Date() }, { new: true })
 
 export const updateAllReadNotifByUserId = async (userId: string) =>
-  await NotificationModel.updateMany({ user: userId }, { isRead: true })
+  await NotificationModel.updateMany({ user: userId }, { isRead: true, updatedAt: new Date() })
