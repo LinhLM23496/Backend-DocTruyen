@@ -35,6 +35,36 @@ export const getAllMyBooks = async (req: Request, res: Response) => {
   }
 }
 
+export const getBook2 = async (req: Request, res: Response) => {
+  try {
+    const { userId, bookId } = req.query
+
+    if (!bookId || typeof bookId !== 'string') {
+      return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.FIELD_BOOKID_REQUIRED })
+    }
+
+    const book = await booksServices.getBookById(bookId)
+
+    if (!book) return res.status(HttpStatus.BAD_REQUEST).send({ error: 1, message: Messages.BOOK_NOT_EXIST })
+
+    const [firstLastChapterId, likes = 0, existingLike] = await Promise.all([
+      chaptersServices.getFirstLastChapterIdByBookId(bookId),
+      likesServices.countLikesByBookId(bookId),
+      userId && userId?.length && likesServices.getLikebyBookIdUserId(bookId, userId as string)
+    ])
+
+    const data = { ...book.toJSON(), ...firstLastChapterId, likes, ownerLike: existingLike ? 1 : 0 }
+
+    return res.status(HttpStatus.OK).json({
+      error: 0,
+      data,
+      message: Messages.GET_BOOK_SUCCESS
+    })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}
+
 export const getBook = async (req: Request, res: Response) => {
   try {
     const { userId } = req.query
