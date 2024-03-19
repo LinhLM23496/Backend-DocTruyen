@@ -34,6 +34,25 @@ export const getAllChaptersByBookId = async (req: Request, res: Response) => {
   }
 }
 
+export const getChapter2 = async (req: Request, res: Response) => {
+  try {
+    const { chapterId } = req.query
+
+    if (!chapterId || typeof chapterId !== 'string') {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.FIELD_CHAPTERID_REQUIRED })
+    }
+
+    const chapter = await chaptersServices.getChapterInfo(chapterId)
+
+    if (!chapter) {
+      return res.status(HttpStatus.BAD_REQUEST).json({ error: 1, message: Messages.CHAPTER_NOT_EXIST })
+    }
+
+    return res.status(HttpStatus.OK).json({ error: 0, data: chapter, message: Messages.GET_CHAPTER_SUCCESS })
+  } catch (error) {
+    return sendInternalServerError(res)
+  }
+}
 export const getChapter = async (req: Request, res: Response) => {
   try {
     const { id: chapterId } = req.params
