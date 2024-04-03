@@ -209,7 +209,8 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
   const [content, previousId, nextId] = await Promise.all([
     getContent(bookId, chapterId),
     getPreviousIdChapter(bookId, numberChapter),
-    getNextIdChapter(bookId, numberChapter, chapters)
+    getNextIdChapter(bookId, numberChapter, chapters),
+    booksServices.increasedViewsByBookId(bookId)
   ])
 
   return { ...data.toJSON(), content, previousId, nextId }

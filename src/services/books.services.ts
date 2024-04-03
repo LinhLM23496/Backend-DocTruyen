@@ -208,3 +208,7 @@ export const getBookAndUpdateViews = async (bookId: string): Promise<BookDocumen
     return null
   }
 }
+
+export const increasedViewsByBookId = async (bookId: string): Promise<void> => {
+  await BookModel.findByIdAndUpdate(bookId, { $inc: { views: 1 } }).exec()
+}
