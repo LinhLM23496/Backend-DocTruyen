@@ -90,7 +90,7 @@ export default async function updateChapter() {
     console.log('Update start')
     const bookFull = await booksServices.getBooksPending()
     for (const book of bookFull) {
-      const DATE_NOW = moment().format('DD-MM-YYYY HH:mm:ss')
+      const DATE_NOW = moment().utcOffset('+0700').format('DD-MM-YYYY HH:mm:ss')
       const failed: number[] = []
       const bookId = book._id.toString()
       const author = book.author
