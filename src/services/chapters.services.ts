@@ -117,7 +117,7 @@ export const getChapterByBookIdAndNumChapter = async (id: string, numberChapter:
 
   await BookModel.findByIdAndUpdate(data?.bookId, { $inc: { views: 1 } })
 
-  return data.toJSON()
+  return data.toJSON() as ChapterDocument
 }
 
 export const getFirstLastChapterIdByBookId = async (bookId: string): Promise<ChapterFirstLastId> => {
@@ -213,7 +213,7 @@ export const getChapterInfo = async (chapterId: string): Promise<GetDataChapter>
     booksServices.increasedViewsByBookId(bookId)
   ])
 
-  return { ...data.toJSON(), content, previousId, nextId }
+  return { ...(data.toJSON() as GetDataChapter), content, previousId, nextId }
 }
 
 export const createChapterByBookId = async (bookId: string, values: Omit<Chapter, '_id'>): Promise<Chapter> => {
